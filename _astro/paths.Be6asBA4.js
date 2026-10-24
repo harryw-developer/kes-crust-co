@@ -1,0 +1,1 @@
+var e=`/kes-crust-co`.replace(/\/$/,``),t=t=>`${e}${t}`;export{t};
