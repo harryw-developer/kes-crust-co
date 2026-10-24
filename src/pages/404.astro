@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Icon from '../components/Icon.astro';
+import PizzaArt from '../components/PizzaArt.astro';
+---
+<Base title="Page not found" description="This page got a bit burnt.">
+  <section class="block block--yellow page-head lost" aria-labelledby="lost-title">
+    <div class="wrap lost-grid">
+      <div class="lost-art cutout loop" aria-hidden="true"><PizzaArt art={{ sauce: 'tomato', cheese: true, toppings: [['olive', 3]] }} seed="burnt" /></div>
+      <div class="section-head" style="margin:0">
+        <p class="label">Error 404</p>
+        <h1 id="lost-title">This page got burnt</h1>
+        <p class="lede">We looked in the oven, behind the van and under the flour sacks. Nothing. Try one of these instead.</p>
+        <div class="lost-links">
+          <a class="btn" href={u('/find-us')}>Where's the oven? <Icon name="arrow" /></a>
+          <a class="btn btn--white" href={u('/menu')}>Grab a slice</a>
+          <a class="btn btn--white" href={u('/')}>Home</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost { min-height: 80vh; display: grid; align-items: center; }
+  .lost-grid { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .lost-grid { grid-template-columns: 0.8fr 1.2fr; } }
+  .lost-art { width: min(60vw, 320px); justify-self: center; filter: grayscale(0.4) brightness(0.75); animation: slow-spin 20s linear infinite; }
+  @keyframes slow-spin { to { rotate: 360deg; } }
+  .lost-links { display: flex; flex-wrap: wrap; gap: 12px; }
+</style>

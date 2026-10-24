@@ -1,0 +1,10 @@
+---
+// Hand-drawn wobbly underline under a word or two.
+interface Props { colour?: string }
+const { colour = 'var(--orange)' } = Astro.props;
+---
+<span class="scribble" data-reveal style={`--rf:0deg`}>
+  <slot /><svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true" style={`color:${colour}`}>
+    <path d="M3 13c22-7 40 3 62-2s38-8 60-3 46 4 72-4" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+  </svg>
+</span>

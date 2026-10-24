@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import Scribble from '../components/Scribble.astro';
+import site from '../data/site.json';
+import { ALLERGENS, allergenLabel } from '../lib/allergens';
+import { matrixRows, menuCard } from '../lib/render';
+import { getMenu, kitchenNote } from '../lib/content';
+
+const items = await getMenu();
+const section = (name: string, cat: string) => ({
+  '@type': 'MenuSection', name,
+  hasMenuItem: items.filter((i) => i.category === cat).map((i) => ({
+    '@type': 'MenuItem', name: i.name, description: i.description,
+    offers: { '@type': 'Offer', price: i.price.toFixed(2), priceCurrency: 'GBP' },
+    ...(i.tags.includes('vegan') ? { suitableForDiet: 'https://schema.org/VeganDiet' } : i.tags.includes('veggie') ? { suitableForDiet: 'https://schema.org/VegetarianDiet' } : {}),
+  })),
+});
+const schema = [{ '@type': 'Menu', name: `${site.name} menu`, url: `${site.url}/menu`, hasMenuSection: [section('Pizzas', 'pizza'), section('Drinks', 'drink')] }];
+const filters = [
+  { key: 'all', label: 'Everything' },
+  { key: 'cat:pizza', label: 'Pizzas', topping: 'pepperoni' },
+  { key: 'cat:drink', label: 'Drinks', icon: 'drink' },
+  { key: 'veggie', label: 'Veggie', topping: 'basil' },
+  { key: 'faves', label: 'My faves', icon: 'heart-fill' },
+];
+---
+<Base title="Menu & allergens" description="The KES Crust Co. wood-fired pizza menu: prices, drinks and full allergen information for all 14 regulated allergens." schema={schema}>
+  <script type="application/json" id="snap-menu" set:html={JSON.stringify(items)} slot="head" />
+  <section class="block block--yellow page-head" aria-labelledby="menu-title">
+    <div class="wrap">
+      <div class="section-head" style="margin:0">
+        <p class="label">The menu</p>
+        <h1 id="menu-title">Pick your <Scribble colour="var(--burgundy)">pizza</Scribble></h1>
+        <p class="lede">Short menu, done brilliantly. Tap + to plan your order and show it at the van. Flip a card for allergens.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--cream menu-body" aria-labelledby="menu-list-title">
+    <div class="wrap">
+      <h2 id="menu-list-title" class="sr-only">Pizzas and drinks</h2>
+      <div class="filters" role="group" aria-label="Filter the menu">
+        {filters.map((f) => (
+          <button class="filter-chip" type="button" data-filter={f.key} aria-pressed={f.key === 'all' ? 'true' : 'false'}>
+            {f.topping && <Icon name={f.topping} topping />}
+            {f.icon && <Icon name={f.icon} class={f.icon === 'heart-fill' ? 'fc-heart' : ''} />}
+            {f.label}
+          </button>
+        ))}
+      </div>
+      <p class="sr-only" role="status" data-filter-status></p>
+      <ul class="menu-grid" role="list" data-menu-grid data-reveal-group set:html={items.map(menuCard).join('')} />
+      <div class="live-empty sticker" data-menu-empty hidden>
+        <h3>Oven's cooling on that one</h3>
+        <p data-empty-msg>Nothing matches. Try another filter.</p>
+      </div>
+      <p class="kitchen-note sticker"><Icon name="pin" /> <span><strong>Allergies?</strong> {kitchenNote}</span></p>
+    </div>
+  </section>
+
+  <section class="block block--burgundy" aria-labelledby="matrix-title">
+    <div class="wrap">
+      <div class="section-head on-dark">
+        <p class="label">The boring-but-important bit</p>
+        <h2 id="matrix-title">Allergen chart</h2>
+        <p class="lede">All 14 regulated allergens for everything we serve. ● contains, ◐ may contain.</p>
+      </div>
+      <div class="matrix-wrap sticker" tabindex="0" role="region" aria-labelledby="matrix-title">
+        <table class="matrix">
+          <caption class="sr-only">Allergens in each menu item</caption>
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              {ALLERGENS.map((a) => <th scope="col"><span>{allergenLabel(a.key, true)}</span></th>)}
+            </tr>
+          </thead>
+          <tbody data-matrix set:html={matrixRows(items)} />
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="order-bar" data-order-bar hidden>
+    <p class="ob-sum"><span class="label">Your order</span><strong data-order-summary>0 items</strong></p>
+    <strong class="ob-total" data-order-total>£0</strong>
+    <button class="btn btn--yellow btn--small" type="button" data-order-show>Show at the van</button>
+    <button class="ob-clear" type="button" data-order-clear aria-label="Clear order">{'×'}</button>
+  </div>
+  <dialog class="order-card" data-order-dialog aria-labelledby="order-title">
+    <p class="label">Show this at the van</p>
+    <h2 id="order-title">My order</h2>
+    <ul class="oc-list" role="list" data-order-list></ul>
+    <p class="oc-total">Total <strong data-order-dialog-total>£0</strong></p>
+    <p class="oc-note">Just a handy list. We take payment at the van.</p>
+    <form method="dialog"><button class="btn">Done</button></form>
+  </dialog>
+
+  <script>
+    import '../scripts/menu';
+  </script>
+</Base>
+
+<style>
+  .menu-body { padding-top: clamp(40px, 6vw, 64px); }
+  .filters { display: flex; gap: 10px; margin: 0 calc(var(--gutter) * -1) 24px; padding: 10px var(--gutter) 12px; position: sticky; top: 78px; z-index: 5; overflow-x: auto; scrollbar-width: none; background: linear-gradient(var(--cream) 80%, transparent); }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-chip { flex: none; }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 16px;
+    border: var(--line) solid var(--black); border-radius: 999px; background: var(--white); box-shadow: 3px 3px 0 var(--black);
+    font-family: var(--font-label); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase;
+    transition: transform 300ms var(--spring), background-color 150ms, box-shadow 150ms;
+  }
+  .filter-chip :global(.icon) { width: 22px; height: 22px; }
+  :global(.fc-heart) { color: var(--pink); }
+  .filter-chip:hover { transform: rotate(-3deg); }
+  .filter-chip[aria-pressed='true'] { background: var(--burgundy); color: var(--white); }
+  .filter-chip.is-bounce { animation: chip-bounce 420ms var(--bouncy); }
+  @keyframes chip-bounce { 0% { scale: 1; } 30% { scale: 1.18, 0.86; } 60% { scale: 0.94, 1.08; } 100% { scale: 1; } }
+  .menu-grid { display: grid; gap: 24px; padding: 0; }
+  @media (min-width: 680px) { .menu-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .menu-grid { grid-template-columns: repeat(3, 1fr); } }
+  .kitchen-note { display: flex; gap: 10px; padding: 16px 18px; margin-top: 36px; background: var(--yellow); max-width: 760px; --r: -0.5deg; }
+  .kitchen-note :global(.icon) { color: var(--burgundy); margin-top: 3px; }
+  .matrix-wrap { overflow-x: auto; background: var(--white); color: var(--black); }
+  .matrix { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 0.9rem; }
+  .matrix th, .matrix td { border-bottom: 2px solid #eee; padding: 10px 6px; text-align: center; }
+  .matrix thead th { vertical-align: bottom; height: 130px; }
+  .matrix thead th span { writing-mode: vertical-rl; rotate: 180deg; font-family: var(--font-label); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  .matrix thead th:first-child { text-align: left; vertical-align: bottom; }
+  .matrix tbody th { text-align: left; font-family: var(--font-display); font-size: 1.05rem; color: var(--burgundy); white-space: nowrap; padding-left: 14px; position: sticky; left: 0; background: var(--white); }
+  .matrix tbody th small { font-family: var(--font-body); color: var(--black); font-weight: 600; }
+  .matrix .m-yes { color: var(--burgundy); font-size: 1.2rem; }
+  .matrix .m-may { font-size: 1.2rem; }
+  .matrix tbody tr:hover td, .matrix tbody tr:hover th { background: #fff4cc; }
+  .order-bar {
+    position: fixed; left: 50%; bottom: 14px; z-index: 800; translate: -50% 0; width: min(100% - 24px, 620px);
+    display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 18px;
+    background: var(--black); color: var(--cream); border: var(--line) solid var(--black); border-radius: 999px; box-shadow: 5px 5px 0 var(--burgundy);
+    animation: toast-in 380ms var(--spring);
+  }
+  .order-bar[hidden] { display: none; }
+  .ob-sum { display: grid; line-height: 1.15; flex: 1; min-width: 0; }
+  .ob-sum .label { color: var(--yellow); font-size: 0.68rem; }
+  .ob-sum strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ob-total { font-family: var(--font-display); font-size: 1.5rem; }
+  .ob-total.is-bump { animation: fave-bounce 380ms var(--bouncy); }
+  .ob-clear { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--cream); background: transparent; color: var(--cream); font-size: 1.4rem; line-height: 1; flex: none; }
+  @media (max-width: 420px) { .ob-total { font-size: 1.25rem; } .order-bar .btn { padding-inline: 0.8em; font-size: 0.78rem; } }
+  .menu-body { padding-bottom: 120px; }
+  .order-card { border: var(--line) solid var(--black); border-radius: 28px; box-shadow: 8px 8px 0 var(--black); background: var(--yellow); color: var(--black); padding: 28px; width: min(100% - 32px, 460px); }
+  .order-card::backdrop { background: rgba(17, 17, 17, 0.6); }
+  .order-card[open] { animation: toast-in 380ms var(--spring); }
+  .order-card h2 { font-size: 2.6rem; margin: 4px 0 14px; }
+  .oc-list { display: grid; gap: 8px; font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; line-height: 1.1; }
+  .oc-list li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 3px dashed rgba(17, 17, 17, 0.3); padding-bottom: 6px; }
+  .oc-total { display: flex; justify-content: space-between; margin-top: 14px; font-weight: 700; font-size: 1.2rem; }
+  .oc-total strong { font-family: var(--font-display); font-size: 2rem; color: var(--burgundy); }
+  .oc-note { font-size: 0.9rem; margin: 6px 0 16px; }
+</style>

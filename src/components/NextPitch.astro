@@ -1,0 +1,78 @@
+---
+// "Where's the oven next?" card. Rendered from the build snapshot, then refreshed
+// from Supabase and re-checked against the clock in the browser.
+import Icon from './Icon.astro';
+import { u } from '../lib/paths';
+import { dateLong, times, type Pitch } from '../lib/dates';
+
+interface Props { pitches: Pitch[] }
+const next = Astro.props.pitches[0];
+---
+<article class="next-pitch sticker" data-next-pitch aria-labelledby="np-title">
+  <div class="np-tab label"><span data-np-status>{next ? 'Next fire-up' : 'No dates yet'}</span></div>
+  <div class="np-body" data-np-body hidden={!next}>
+    <h2 id="np-title" class="np-date" data-np-when>{next ? dateLong(next.date) : ''}</h2>
+    <p class="np-row"><Icon name="clock" /> <strong data-np-times>{next ? times(next) : ''}</strong> <span class="np-soon" data-np-soon></span></p>
+    <p class="np-row"><Icon name="pin" /> <span><strong data-np-name>{next?.name}</strong><span class="np-area" data-np-area>{next?.area ? `, ${next.area}` : ''}</span></span></p>
+    <div class="np-actions">
+      <a class="btn" href={u(next ? `/find-us#d-${next.id}` : '/find-us')} data-np-link>Where's the oven? <Icon name="arrow" /></a>
+      <a class="btn btn--white" href={u('/menu')}>Grab a slice</a>
+    </div>
+  </div>
+  <div class="np-empty" data-np-empty hidden={!!next}>
+    <h2 class="np-date">Oven's cooling for now</h2>
+    <p>We only fire up a few times a year, so they're worth the wait. Join the Crust Club and you'll hear first.</p>
+    <div class="np-actions"><a class="btn" href="#club-title">Join the Crust Club</a><a class="btn btn--white" href={u('/menu')}>See the menu</a></div>
+  </div>
+</article>
+
+<script>
+  import { dateLong, epoch, times, type Pitch } from '../lib/dates';
+  import { livePitches, snapshot } from '../scripts/live';
+  import { u } from '../lib/paths';
+
+  const card = document.querySelector<HTMLElement>('[data-next-pitch]');
+  if (card) {
+    const $ = (s: string) => card.querySelector<HTMLElement>(s)!;
+    let list = snapshot<Pitch[]>('snap-dates') || [];
+    const update = () => {
+      const now = Date.now();
+      const next = list.find((p) => epoch(p.date, p.end) > now);
+      $('[data-np-body]').hidden = !next;
+      $('[data-np-empty]').hidden = !!next;
+      if (!next) { $('[data-np-status]').textContent = 'No dates yet'; return; }
+      card.querySelector('.np-empty h2')?.removeAttribute('id');
+      $('[data-np-when]').textContent = dateLong(next.date);
+      $('[data-np-times]').textContent = times(next);
+      $('[data-np-name]').textContent = next.name;
+      $('[data-np-area]').textContent = next.area ? `, ${next.area}` : '';
+      $('[data-np-link]').setAttribute('href', u(`/find-us#d-${next.id}`));
+      const live = now >= epoch(next.date, next.start);
+      const start = new Date(`${next.date}T00:00:00`).getTime();
+      const days = Math.round((start - new Date(now).setHours(0, 0, 0, 0)) / 864e5);
+      $('[data-np-status]').textContent = live ? 'Oven is lit right now' : 'Next fire-up';
+      card.classList.toggle('is-live', live);
+      $('[data-np-soon]').textContent = live ? '· cooking now!' : days <= 0 ? '· today!' : days === 1 ? '· tomorrow' : `· in ${days} days`;
+    };
+    update();
+    setInterval(update, 60_000);
+    livePitches().then((fresh) => { if (fresh) { list = fresh; update(); } });
+  }
+</script>
+
+<style>
+  .next-pitch { --r: 1.2deg; background: var(--yellow); padding: 30px 20px 20px; position: relative; max-width: 520px; }
+  .np-tab {
+    position: absolute; top: -16px; left: 18px; padding: 6px 14px; background: var(--burgundy); color: var(--white);
+    border: var(--line) solid var(--black); border-radius: 999px; rotate: -3deg; font-size: 0.74rem;
+  }
+  .is-live .np-tab { background: var(--orange); color: var(--black); }
+  .np-date { font-size: clamp(1.75rem, 6.4vw, 2.6rem); color: var(--burgundy); line-height: 0.95; }
+  .np-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; font-size: 1.02rem; line-height: 1.35; }
+  .np-row :global(.icon) { width: 22px; height: 22px; flex: none; color: var(--burgundy); }
+  .np-soon { font-weight: 700; color: var(--burgundy); }
+  .np-actions { display: flex; flex-wrap: wrap; gap: 10px 12px; margin-top: 16px; }
+  .np-actions .btn { flex: 1 1 auto; min-height: 50px; padding-inline: 1.1em; font-size: 0.9rem; }
+  .np-empty p { margin-top: 8px; }
+  .np-empty[hidden], .np-body[hidden] { display: none; }
+</style>

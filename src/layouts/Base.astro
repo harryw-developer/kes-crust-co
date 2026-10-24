@@ -1,0 +1,90 @@
+---
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/dm-sans';
+import '@fontsource-variable/outfit';
+import '../styles/global.css';
+import '../styles/cards.css';
+import displayFont from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2?url';
+import bodyFont from '@fontsource-variable/dm-sans/files/dm-sans-latin-wght-normal.woff2?url';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Sprite from '../components/Sprite.astro';
+import Logo from '../components/Logo.astro';
+import site from '../data/site.json';
+import { u, pagePath } from '../lib/paths';
+
+interface Props { title?: string; description?: string; schema?: object[]; bare?: boolean }
+const { title, description = site.description, schema = [], bare = false } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · Wood-fired pizza`;
+const here = pagePath(Astro.url.pathname);
+const canonical = `${new URL(site.url).origin}${u(here === '/' ? '/' : here)}`;
+
+const business = {
+  '@type': 'FoodEstablishment',
+  '@id': `${site.url}/#business`,
+  name: site.name,
+  description: site.description,
+  url: site.url,
+  logo: `${site.url}/brand/kes-logo.png`,
+  image: `${site.url}/brand/kes-logo.png`,
+  email: site.email,
+  telephone: site.phone,
+  servesCuisine: ['Pizza', 'Wood-fired pizza'],
+  priceRange: '££',
+  areaServed: site.area,
+  sameAs: [`https://www.instagram.com/${site.instagram}/`],
+  hasMenu: `${site.url}/menu`,
+};
+const jsonLd = { '@context': 'https://schema.org', '@graph': [business, ...schema] };
+---
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {bare && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#930037" />
+    <link rel="icon" href={u('/favicon-32.png')} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={u('/apple-touch-icon.png')} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${site.url}/og.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        try {
+          if (localStorage.getItem('kes-calm') === '1') d.setAttribute('data-calm', '');
+          if (sessionStorage.getItem('kes-wipe') === '1' && !matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('wipe-in');
+          sessionStorage.removeItem('kes-wipe');
+        } catch (e) {}
+      })();
+    </script>
+    {!bare && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {site.plausibleDomain && <script defer data-domain={site.plausibleDomain} src="https://plausible.io/js/script.js"></script>}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Sprite />
+    {!bare && <Nav />}
+    <main id="main">
+      <slot />
+    </main>
+    {!bare && <Footer />}
+    <div class="brick-wipe" aria-hidden="true"><span class="wipe-badge"><Logo sizes="140px" alt="" /></span></div>
+    <p class="toast" role="status" aria-live="polite" hidden></p>
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,265 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Logo from '../components/Logo.astro';
+import Icon from '../components/Icon.astro';
+import { ALLERGENS } from '../lib/allergens';
+import { TOPPINGS } from '../lib/toppings';
+---
+<Base title="Admin" bare>
+  <div class="admin" data-admin>
+    <header class="ad-top">
+      <a href={u('/')} class="ad-logo" aria-label="Back to the website"><Logo sizes="64px" alt="" eager /></a>
+      <p class="label">Crew area</p>
+      <span class="ad-spacer"></span>
+      <p class="ad-who" data-who hidden></p>
+      <button class="btn btn--small btn--white" type="button" data-logout hidden>Log out</button>
+    </header>
+
+    <!-- Loading -->
+    <section class="ad-screen" data-screen="loading">
+      <div class="brick-loader"><p class="label">Lighting the oven…</p></div>
+    </section>
+
+    <!-- PIN log-in / first-time setup -->
+    <section class="ad-screen" data-screen="pin" hidden>
+      <form class="pin-card sticker" data-pin-form autocomplete="off">
+        <h1 data-pin-title>Crew log-in</h1>
+        <p class="pin-help" data-pin-help>Type your name, then your PIN.</p>
+        <label class="field"><span>Your name</span><input class="input" name="name" autocomplete="username" required maxlength="40" data-pin-name /></label>
+        <div class="field">
+          <span data-pin-label>PIN</span>
+          <div class="pin-dots" data-pin-dots aria-hidden="true"></div>
+          <input class="sr-only" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" name="pin" data-pin-input aria-label="PIN" autocomplete="current-password" />
+        </div>
+        <div class="keypad" data-keypad>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => <button type="button" class="key" data-key={n}>{n}</button>)}
+          <button type="button" class="key key--fn" data-key="clear" aria-label="Clear PIN">C</button>
+          <button type="button" class="key" data-key="0">0</button>
+          <button type="button" class="key key--fn" data-key="back" aria-label="Delete last digit">⌫</button>
+        </div>
+        <p class="error-msg" role="alert" data-pin-error hidden></p>
+        <button class="btn btn--block" type="submit" data-pin-submit>Let me in</button>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="ad-screen" data-screen="dash" hidden>
+      <nav class="ad-tabs" role="tablist" aria-label="Admin sections">
+        <button role="tab" type="button" data-tab="events" aria-selected="true">Events</button>
+        <button role="tab" type="button" data-tab="menu" aria-selected="false">Menu</button>
+        <button role="tab" type="button" data-tab="enquiries" aria-selected="false">Enquiries <span class="ad-badge" data-badge-enquiries hidden></span></button>
+        <button role="tab" type="button" data-tab="club" aria-selected="false">Crust Club</button>
+        <button role="tab" type="button" data-tab="team" aria-selected="false">Team</button>
+      </nav>
+
+      <div class="ad-panel" role="tabpanel" data-panel="events">
+        <div class="ad-head">
+          <div><h2>Events</h2><p>You only do a few a year, so each one gets the spotlight on the site.</p></div>
+          <button class="btn" type="button" data-new-event><Icon name="calendar" /> Add an event</button>
+        </div>
+        <div data-events-list></div>
+      </div>
+
+      <div class="ad-panel" role="tabpanel" data-panel="menu" hidden>
+        <div class="ad-head">
+          <div><h2>Menu</h2><p>Change prices, mark things sold out, or add something new. Changes show on the site straight away.</p></div>
+          <button class="btn" type="button" data-new-item>+ Add an item</button>
+        </div>
+        <div data-menu-list></div>
+      </div>
+
+      <div class="ad-panel" role="tabpanel" data-panel="enquiries" hidden>
+        <div class="ad-head"><div><h2>Enquiries</h2><p>Bookings sent from the Events page. Newest first.</p></div></div>
+        <div data-enquiries-list></div>
+      </div>
+
+      <div class="ad-panel" role="tabpanel" data-panel="club" hidden>
+        <div class="ad-head">
+          <div><h2>Crust Club</h2><p>People who asked to hear about new dates.</p></div>
+          <div class="ad-actions"><button class="btn btn--white" type="button" data-copy-emails>Copy all emails</button><button class="btn btn--white" type="button" data-csv>Download CSV</button></div>
+        </div>
+        <div data-club-list></div>
+      </div>
+
+      <div class="ad-panel" role="tabpanel" data-panel="team" hidden>
+        <div class="ad-head"><div><h2>Team</h2><p>Everyone here can log in and edit the site.</p></div></div>
+        <div data-team-list></div>
+        <div class="ad-grid2">
+          <form class="ad-card sticker" data-add-admin>
+            <h3>Add a crew member</h3>
+            <label class="field"><span>Name</span><input class="input" name="name" required maxlength="40" autocomplete="off" /></label>
+            <label class="field"><span>Their PIN (4–8 digits)</span><input class="input" name="pin" required inputmode="numeric" pattern="[0-9]{4,8}" autocomplete="new-password" type="password" /></label>
+            <button class="btn" type="submit">Add them</button>
+          </form>
+          <form class="ad-card sticker" data-change-pin>
+            <h3>Change my PIN</h3>
+            <label class="field"><span>Current PIN</span><input class="input" name="old" required inputmode="numeric" pattern="[0-9]{4,8}" type="password" autocomplete="current-password" /></label>
+            <label class="field"><span>New PIN (4–8 digits)</span><input class="input" name="new" required inputmode="numeric" pattern="[0-9]{4,8}" type="password" autocomplete="new-password" /></label>
+            <button class="btn" type="submit">Change PIN</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Event editor -->
+  <dialog class="ad-dialog" data-event-dialog aria-labelledby="ev-dialog-title">
+    <form method="dialog" data-event-form>
+      <h2 id="ev-dialog-title" data-event-title>New event</h2>
+      <input type="hidden" name="id" />
+      <label class="field"><span>Event or place name</span><input class="input" name="name" required maxlength="120" placeholder="e.g. Summer Fair on the Green" /></label>
+      <div class="ad-row">
+        <label class="field"><span>Date</span><input class="input" type="date" name="date" required /></label>
+        <label class="field"><span>Starts</span><input class="input" type="time" name="start_time" required value="12:00" /></label>
+        <label class="field"><span>Ends</span><input class="input" type="time" name="end_time" required value="17:00" /></label>
+      </div>
+      <label class="field"><span>Area <small>(short, e.g. "Town centre")</small></span><input class="input" name="area" maxlength="120" /></label>
+      <label class="field"><span>Full address <small>(used for the map link)</small></span><input class="input" name="address" maxlength="300" /></label>
+      <label class="field"><span>Note <small>(optional, e.g. "Bring your dog")</small></span><input class="input" name="note" maxlength="300" /></label>
+      <label class="check"><input type="checkbox" name="published" checked /> <span>Show this on the website</span></label>
+      <p class="error-msg" role="alert" data-form-error hidden></p>
+      <div class="ad-actions">
+        <button class="btn btn--white" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn" value="save" data-save>Save event</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Menu item editor -->
+  <dialog class="ad-dialog" data-item-dialog aria-labelledby="item-dialog-title">
+    <form method="dialog" data-item-form>
+      <h2 id="item-dialog-title" data-item-title>New item</h2>
+      <input type="hidden" name="id" />
+      <div class="ad-row">
+        <label class="field"><span>Name</span><input class="input" name="name" required maxlength="80" /></label>
+        <label class="field"><span>Price (£)</span><input class="input" name="price" required inputmode="decimal" pattern="[0-9]+(\.[0-9]{1,2})?" placeholder="4.00" /></label>
+      </div>
+      <div class="ad-row">
+        <label class="field"><span>Type</span>
+          <select class="input" name="category"><option value="pizza">Pizza</option><option value="drink">Drink</option><option value="side">Side</option><option value="sweet">Sweet</option></select>
+        </label>
+        <label class="field"><span>Order on menu</span><input class="input" name="sort" type="number" step="1" /></label>
+      </div>
+      <label class="field"><span>Description</span><textarea class="input" name="description" maxlength="300" rows="2"></textarea></label>
+      <label class="field"><span>Ingredients <small>(one per line)</small></span><textarea class="input" name="ingredients" rows="3"></textarea></label>
+      <fieldset class="ad-fieldset">
+        <legend>Dietary tags</legend>
+        <div class="ad-checks">
+          <label class="check"><input type="checkbox" name="tag" value="veggie" /> Veggie</label>
+          <label class="check"><input type="checkbox" name="tag" value="vegan" /> Vegan</label>
+          <label class="check"><input type="checkbox" name="tag" value="spicy" /> Spicy</label>
+        </div>
+      </fieldset>
+      <fieldset class="ad-fieldset">
+        <legend>Allergens <small>(tick what it contains; "may" for traces)</small></legend>
+        <div class="ad-allergens">
+          {ALLERGENS.map((a) => (
+            <div class="ad-al">
+              <span>{a.label}</span>
+              <select class="input input--small" name={`al-${a.key}`} aria-label={a.label}>
+                <option value="no">No</option><option value="yes">Contains</option><option value="may">May contain</option>
+              </select>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset class="ad-fieldset" data-art-pizza>
+        <legend>Drawing on the menu (pizzas)</legend>
+        <div class="ad-row">
+          <label class="field"><span>Sauce</span><select class="input" name="art_sauce"><option value="tomato">Tomato</option><option value="white">White</option><option value="pesto">Pesto</option><option value="choc">Chocolate</option></select></label>
+          <label class="field"><span>Main topping</span><select class="input" name="art_topping"><option value="">None</option>{Object.entries(TOPPINGS).map(([k, t]) => <option value={k}>{t.label}</option>)}</select></label>
+          <label class="check" style="align-self:end"><input type="checkbox" name="art_cheese" checked /> Cheese</label>
+        </div>
+      </fieldset>
+      <fieldset class="ad-fieldset" data-art-can hidden>
+        <legend>Drawing on the menu (cans)</legend>
+        <div class="ad-row">
+          <label class="field"><span>Can colour</span><input class="input" type="color" name="art_can" value="#C9CED6" /></label>
+          <label class="field"><span>Stripe colour</span><input class="input" type="color" name="art_band" value="#E41E2B" /></label>
+        </div>
+      </fieldset>
+      <label class="check"><input type="checkbox" name="available" checked /> <span>Available (untick to show "Sold out today")</span></label>
+      <p class="error-msg" role="alert" data-form-error hidden></p>
+      <div class="ad-actions">
+        <button class="btn btn--white" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn" value="save">Save item</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    import '../scripts/admin';
+  </script>
+</Base>
+
+<style>
+  :global(body) { background: var(--cream); }
+  .admin { width: min(100% - 32px, 1000px); margin: 0 auto; padding: 16px 0 80px; }
+  .ad-top { display: flex; align-items: center; gap: 12px; padding: 8px 0 20px; border-bottom: var(--line) solid var(--black); margin-bottom: 24px; }
+  .ad-logo :global(img) { width: 64px; height: auto; }
+  .ad-top .label { color: var(--burgundy); }
+  .ad-spacer { flex: 1; }
+  .ad-who { font-weight: 700; }
+  .ad-who[hidden] { display: none; }
+  .ad-screen[hidden] { display: none; }
+  .ad-screen[data-screen='loading'] { display: grid; place-items: center; min-height: 50vh; }
+  .ad-screen[data-screen='loading'][hidden] { display: none; }
+
+  .pin-card { max-width: 400px; margin: 4vh auto 0; padding: 26px; display: grid; gap: 14px; background: var(--yellow); }
+  .pin-card h1 { font-size: 2.4rem; }
+  .pin-help { margin-top: -6px; }
+  .pin-dots { display: flex; gap: 10px; min-height: 30px; align-items: center; }
+  .pin-dots :global(span) { width: 20px; height: 20px; border-radius: 50%; border: var(--line) solid var(--black); background: var(--white); transition: transform 200ms var(--spring), background-color 150ms; }
+  .pin-dots :global(span.on) { background: var(--burgundy); transform: scale(1.15); }
+  .pin-dots.is-shake { animation: shake 400ms; }
+  @keyframes shake { 20%, 60% { translate: -8px 0; } 40%, 80% { translate: 8px 0; } }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .key { min-height: 60px; border: var(--line) solid var(--black); border-radius: 18px; background: var(--white); box-shadow: 3px 3px 0 var(--black); font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; transition: transform 120ms; }
+  .key:active { transform: translate(3px, 3px); box-shadow: none; background: var(--orange); }
+  .key--fn { background: var(--cream); font-size: 1.2rem; }
+
+  .ad-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 12px; margin: 0 -4px 12px; scrollbar-width: none; }
+  .ad-tabs button { flex: none; min-height: 46px; padding: 0 16px; border: var(--line) solid var(--black); border-radius: 999px; background: var(--white); box-shadow: 3px 3px 0 var(--black); font-family: var(--font-label); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; }
+  .ad-tabs button[aria-selected='true'] { background: var(--burgundy); color: var(--white); }
+  .ad-badge { background: var(--pink); color: var(--black); border: 2px solid var(--black); border-radius: 999px; min-width: 22px; padding: 0 6px; font-size: 0.72rem; }
+  .ad-badge[hidden] { display: none; }
+  .ad-panel[hidden] { display: none; }
+  .ad-head { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; }
+  .ad-head h2 { font-size: 2.4rem; }
+  .ad-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+  .ad-grid2 { display: grid; gap: 18px; margin-top: 24px; }
+  @media (min-width: 760px) { .ad-grid2 { grid-template-columns: 1fr 1fr; } }
+  .ad-card { padding: 20px; display: grid; gap: 12px; background: var(--white); }
+  .ad-card h3 { color: var(--burgundy); }
+
+  :global(.ad-list) { display: grid; gap: 12px; list-style: none; padding: 0; }
+  :global(.ad-item) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 16px; background: var(--white); border: var(--line) solid var(--black); border-radius: 18px; box-shadow: 4px 4px 0 var(--black); }
+  :global(.ad-item.is-past), :global(.ad-item.is-off) { opacity: 0.6; }
+  :global(.ad-item-main) { flex: 1 1 240px; min-width: 0; }
+  :global(.ad-item-main strong) { font-family: var(--font-display); font-size: 1.25rem; color: var(--burgundy); display: block; line-height: 1.15; }
+  :global(.ad-item-main small) { display: block; color: #444; }
+  :global(.ad-item .btn) { min-height: 42px; }
+  :global(.ad-subhead) { margin: 22px 0 10px; color: var(--burgundy); }
+  :global(.ad-empty) { padding: 22px; border: var(--line) dashed var(--black); border-radius: 18px; text-align: center; background: var(--white); }
+  :global(.ad-price) { width: 96px; }
+  :global(.ad-pill) { display: inline-block; padding: 2px 10px; border-radius: 999px; border: 2px solid var(--black); font-size: 0.75rem; font-weight: 700; background: var(--yellow); margin-left: 6px; vertical-align: middle; }
+  :global(.ad-pill--green) { background: var(--green); }
+  :global(.ad-pill--pink) { background: var(--pink); }
+  :global(.ad-enq dl) { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; margin-top: 6px; font-size: 0.95rem; }
+  :global(.ad-enq dt) { font-weight: 700; }
+  .ad-dialog { width: min(100% - 24px, 620px); max-height: calc(100dvh - 24px); border: var(--line) solid var(--black); border-radius: 26px; box-shadow: 8px 8px 0 var(--black); padding: 22px; background: var(--cream); color: var(--black); }
+  .ad-dialog::backdrop { background: rgba(17, 17, 17, 0.6); }
+  .ad-dialog form { display: grid; gap: 14px; }
+  .ad-dialog h2 { font-size: 2rem; }
+  .ad-row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .ad-fieldset { border: 2px dashed var(--black); border-radius: 16px; padding: 12px 14px; display: grid; gap: 10px; }
+  .ad-fieldset[hidden] { display: none; }
+  .ad-fieldset legend { font-weight: 700; padding: 0 6px; }
+  .ad-checks { display: flex; flex-wrap: wrap; gap: 16px; }
+  .ad-allergens { display: grid; gap: 6px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .ad-al { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.92rem; }
+  .input--small { min-height: 40px; padding: 6px 10px; width: auto; box-shadow: 2px 2px 0 var(--black); border-radius: 12px; }
+  .check { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .check input { width: 22px; height: 22px; accent-color: var(--burgundy); }
+</style>

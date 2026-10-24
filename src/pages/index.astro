@@ -1,0 +1,223 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Logo from '../components/Logo.astro';
+import NextPitch from '../components/NextPitch.astro';
+import PizzaArt from '../components/PizzaArt.astro';
+import Icon from '../components/Icon.astro';
+import Scribble from '../components/Scribble.astro';
+import { eventSchema } from '../lib/dates';
+import { featureCard, soonItem } from '../lib/render';
+import { getMenu, getPitches } from '../lib/content';
+import { price } from '../lib/allergens';
+import { seeded } from '../lib/random';
+
+const pitches = await getPitches();
+const menu = await getMenu();
+const pizzas = menu.filter((i) => i.category !== 'drink');
+const drinks = menu.filter((i) => i.category === 'drink');
+const cheapestDrink = drinks.length ? Math.min(...drinks.map((d) => d.price)) : null;
+
+// Toppings that rain onto the spinning pizza
+const rnd = seeded('rain');
+const kinds = ['pepperoni', 'basil', 'pepperoni', 'pepperoni', 'basil', 'pepperoni', 'basil', 'pepperoni', 'pepperoni', 'basil', 'pepperoni', 'pepperoni', 'basil', 'pepperoni'];
+const rain = kinds.map((t, i) => {
+  const a = i * 2.39996;
+  const r = 10 + Math.sqrt((i + 0.5) / kinds.length) * 27;
+  return { t, x: 50 + Math.cos(a) * r, y: 50 + Math.sin(a) * r, rot: Math.round(rnd() * 360) };
+});
+const stickers = [
+  { t: 'basil', style: 'top:14%;left:4%;width:58px;--r:-18deg' },
+  { t: 'chilli', style: 'top:9%;right:5%;width:54px;--r:22deg' },
+  { t: 'mushroom', style: 'bottom:6%;left:46%;width:52px;--r:-8deg' },
+  { t: 'pepperoni', style: 'bottom:14%;right:3%;width:60px;--r:12deg' },
+];
+---
+<Base>
+  <script type="application/json" id="snap-dates" set:html={JSON.stringify(pitches)} slot="head" />
+  <script type="application/json" id="snap-menu" set:html={JSON.stringify(menu)} slot="head" />
+  <script type="application/ld+json" id="live-events-ld" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': pitches.map(eventSchema) })} slot="head" />
+  <section class="hero" aria-labelledby="hero-title">
+    {stickers.map((s) => <div class="float-sticker cutout hero-sticker loop" style={s.style} aria-hidden="true"><Icon name={s.t} topping /></div>)}
+    <div class="wrap hero__grid">
+      <div class="hero__brand">
+        <div class="hero__mark" data-flames>
+          <h1 id="hero-title" class="hero__logo">
+            <Logo sizes="(min-width: 980px) 460px, 62vw" alt="KES Crust Co." eager />
+          </h1>
+          <button class="rose-hit" type="button" data-rose aria-label="Rose emblem"></button>
+        </div>
+        <p class="hero__tag">
+          Three mates. One mission. <Scribble>Awesome pizza.</Scribble>
+        </p>
+      </div>
+      <div class="hero__pitch">
+        <svg class="doodle-arrow" viewBox="0 0 120 80" aria-hidden="true"><path d="M8 12c30-6 66 6 82 40M74 46l17 9 4-19" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <NextPitch pitches={pitches} />
+      </div>
+    </div>
+    <button class="motion-toggle hero__pause" type="button" data-motion-toggle aria-pressed="false"><Icon name="pause" /> <span>Pause animations</span></button>
+  </section>
+
+  <section class="block block--burgundy spin" aria-labelledby="spin-title" data-spin>
+    <div class="spin__sticky">
+      <div class="wrap spin__grid">
+        <div class="section-head on-dark">
+          <p class="label">The oven does the talking</p>
+          <h2 id="spin-title">Wood-fired. Blistered. <span class="accent">Gone in&nbsp;seconds.</span></h2>
+          <p class="lede">Proper fire, proper flames, proper pizza. Keep scrolling, we're topping it up.</p>
+          <div><a class="btn btn--yellow" href={u('/menu')}>See the menu <Icon name="arrow" /></a></div>
+        </div>
+        <div class="spin__stage" aria-hidden="true">
+          <div class="spin__pizza" data-spin-pizza>
+            <PizzaArt art={{ sauce: 'tomato', cheese: true, toppings: [] }} seed="spin" />
+            {rain.map((r) => (
+              <svg class="rain" viewBox="0 0 40 40" style={`left:${r.x.toFixed(1)}%;top:${r.y.toFixed(1)}%;--rot:${r.rot}deg`}><use href={`#t-${r.t}`} /></svg>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--yellow" aria-labelledby="faves-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">The menu</p>
+        <h2 id="faves-title">Grab a <Scribble colour="var(--burgundy)">slice</Scribble></h2>
+      </div>
+      <ul class="fave-grid" role="list" data-reveal-group data-live-pizzas set:html={pizzas.map(featureCard).join('')} />
+      {cheapestDrink !== null && <p class="drinks-note sticker">Plus ice-cold cans from <strong>{price(cheapestDrink)}</strong>: {drinks.map((d) => d.name).join(', ')}.</p>}
+      <p class="center-cta"><a class="btn" href={u('/menu')}>Full menu &amp; allergens <Icon name="arrow" /></a></p>
+    </div>
+  </section>
+
+  <section class="block block--cream" aria-labelledby="soon-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">Coming up</p>
+        <h2 id="soon-title">Where's the oven?</h2>
+      </div>
+      <ol class="soon-list" role="list" data-reveal-group data-live-soon set:html={pitches.slice(0, 3).map(soonItem).join('')} />
+      <div class="live-empty sticker" data-soon-empty hidden={pitches.length > 0}>
+        <h3>Oven's cooling for now</h3>
+        <p>We only fire up a handful of times a year. Join the Crust Club and we'll tell you the moment a date's booked.</p>
+        <a class="btn" href="#club-title">Join the Crust Club</a>
+      </div>
+      <p class="center-cta"><a class="btn" href={u('/find-us')}>All dates &amp; countdown <Icon name="calendar" /></a></p>
+    </div>
+  </section>
+
+  <section class="block block--pink" aria-labelledby="events-title">
+    <div class="wrap split">
+      <div class="section-head" style="margin:0">
+        <p class="label" style="color:var(--black)">Parties · weddings · markets · work dos</p>
+        <h2 id="events-title">Bring the fire to your&nbsp;do</h2>
+        <p class="lede">We only do a few events a year, so grab a date early. We roll up, light up and feed everyone.</p>
+        <div><a class="btn" href={u('/events#enquire')}>Fire it up <Icon name="arrow" /></a></div>
+      </div>
+      <div class="events-stack" aria-hidden="true">
+        <div class="sticker ev-badge" style="--r:-6deg;background:var(--yellow)"><strong>3</strong>mates<br />1 mission</div>
+        <div class="sticker ev-badge" style="--r:5deg;background:var(--cream)">Only a<br /><strong>few</strong><br />dates a year</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--green" aria-labelledby="build-title">
+    <div class="wrap split">
+      <div class="section-head" style="margin:0">
+        <p class="label" style="color:var(--black)">Just for fun</p>
+        <h2 id="build-title">Build a ridiculous&nbsp;pizza</h2>
+        <p class="lede">Fling toppings, melt the cheese, get a silly name and save it to share. No judgement. Well, a bit.</p>
+        <div><a class="btn btn--white" href={u('/build-a-pizza')}>Let's play <Icon name="shuffle" /></a></div>
+      </div>
+      <div class="build-teaser cutout loop" aria-hidden="true">
+        <PizzaArt art={{ sauce: 'tomato', cheese: true, toppings: [['pineapple', 4], ['chilli', 3], ['olive', 3], ['basil', 2]] }} seed="silly" />
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import './../scripts/home';
+  </script>
+</Base>
+
+<style>
+  .hero {
+    position: relative; overflow: clip;
+    padding: calc(var(--nav-h) + 18px) 0 clamp(64px, 9vw, 110px);
+    background: var(--cream);
+  }
+  .hero__grid { position: relative; z-index: 2; display: grid; gap: 22px; justify-items: center; }
+  .hero__brand { position: relative; display: grid; justify-items: center; text-align: center; width: 100%; }
+  /* Sunburst rays radiate from behind the logo, but the logo itself sits on plain cream */
+  .hero__brand::before {
+    content: ''; position: absolute; left: 50%; top: 50%; width: 260vmax; aspect-ratio: 1; translate: -50% -50%; z-index: -1; pointer-events: none;
+    --clear: 150px;
+    background:
+      radial-gradient(circle, var(--cream) 0 var(--clear), transparent calc(var(--clear) + 1px)),
+      repeating-conic-gradient(rgba(255, 107, 26, 0.1) 0deg 8deg, transparent 8deg 16deg);
+    -webkit-mask: radial-gradient(circle, #000 0 calc(var(--clear) + 160px), transparent calc(var(--clear) + 520px));
+    mask: radial-gradient(circle, #000 0 calc(var(--clear) + 160px), transparent calc(var(--clear) + 520px));
+  }
+  .hero__mark { position: relative; width: min(62vw, 250px); }
+  .rose-hit { position: absolute; left: 50%; top: 8.8%; width: 17%; aspect-ratio: 1; min-width: 44px; translate: -50% -50%; border-radius: 50%; background: transparent; border: 0; z-index: 2; }
+  .hero__logo { position: relative; z-index: 1; margin: 0; line-height: 0; animation: logo-drop 900ms var(--spring) both; }
+  .hero__logo :global(img) { width: 100%; height: auto; }
+  @keyframes logo-drop {
+    0% { transform: translateY(-40px) scale(0.8) rotate(-6deg); }
+    55% { transform: translateY(6px) scale(1.04, 0.95); }
+    100% { transform: none; }
+  }
+  @keyframes slap { from { opacity: 0; transform: scale(1.4) rotate(-6deg); } to { opacity: 1; transform: none; } }
+  .hero__tag { display: none; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; margin-top: 18px; color: var(--black); }
+  /* Core info: visible from the first frame, the bounce is transform-only */
+  .hero__pitch { position: relative; width: 100%; max-width: 520px; animation: pitch-pop 520ms var(--spring) both; }
+  @keyframes pitch-pop { from { transform: scale(0.92) rotate(-2deg); } }
+  .doodle-arrow { display: none; }
+  .hero-sticker { animation: bob 4s ease-in-out infinite alternate; }
+  .hero-sticker:nth-of-type(2n) { animation-duration: 5s; }
+  @keyframes bob { to { translate: 0 -10px; rotate: calc(var(--r) + 8deg); } }
+  .hero__pause { position: absolute; right: 16px; bottom: 44px; z-index: 3; background: var(--cream); color: var(--black); font-size: 0.8rem; min-height: 40px; }
+  @media (max-width: 979px) {
+    .hero-sticker { display: none; }
+    .hero__pause span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .hero { padding-bottom: 112px; }
+    .hero__pause { width: 44px; min-height: 44px; justify-content: center; padding: 0; bottom: 50px; }
+  }
+  @media (max-height: 700px) and (max-width: 600px) {
+    .hero__mark { width: min(52vw, 200px); }
+  }
+  @media (min-width: 980px) {
+    .hero { padding-top: calc(var(--nav-h) + 56px); min-height: min(100vh, 900px); display: grid; align-items: center; }
+    .hero__grid { grid-template-columns: 1.15fr 1fr; align-items: center; gap: 48px; }
+    .hero__mark { width: min(100%, 460px); }
+    .hero__brand::before { --clear: 270px; }
+    .hero__tag { display: block; }
+    .doodle-arrow { display: block; position: absolute; left: -96px; top: -40px; width: 110px; rotate: 10deg; }
+  }
+
+  /* Spinning pizza */
+  .spin { padding: 0; }
+  .spin__sticky { padding-block: clamp(64px, 9vw, 112px); }
+  .spin__grid { display: grid; gap: 32px; align-items: center; }
+  .spin__stage { display: grid; place-items: center; }
+  .spin__pizza { position: relative; width: min(84vw, 460px); aspect-ratio: 1; will-change: transform; filter: drop-shadow(8px 10px 0 #111); }
+  .spin__pizza > :global(svg.pizza-art) { width: 100%; height: 100%; }
+  .rain { position: absolute; width: 13%; height: 13%; translate: -50% -50%; rotate: var(--rot); }
+  html.js .spin.is-scrolly { height: 210vh; }
+  html.js .spin.is-scrolly .spin__sticky { position: sticky; top: 0; min-height: 100vh; display: grid; align-items: center; }
+  @media (min-width: 900px) { .spin__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 899px) { html.js .spin.is-scrolly .spin__pizza { width: min(70vw, 52vh); } html.js .spin.is-scrolly .lede { display: none; } }
+
+
+
+  .drinks-note { margin: 24px auto 0; padding: 12px 18px; max-width: 640px; text-align: center; --r: -0.8deg; }
+  .split { display: grid; gap: 36px; align-items: center; }
+  @media (min-width: 860px) { .split { grid-template-columns: 1.2fr 1fr; } }
+  .events-stack { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .ev-badge { padding: 22px; width: 190px; aspect-ratio: 1; border-radius: 50%; display: grid; place-content: center; text-align: center; font-weight: 700; line-height: 1.15; }
+  .ev-badge strong { font-family: var(--font-display); font-size: 2.2rem; line-height: 0.95; color: var(--burgundy); }
+  .build-teaser { width: min(70vw, 360px); justify-self: center; animation: slow-spin 18s linear infinite; }
+  @keyframes slow-spin { to { rotate: 360deg; } }
+</style>

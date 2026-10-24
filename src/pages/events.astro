@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Icon from '../components/Icon.astro';
+import Scribble from '../components/Scribble.astro';
+import site from '../data/site.json';
+
+const types = [
+  { t: 'Private parties', d: 'Birthdays, garden dos, the big 4-0. Kids love watching the oven, grown-ups love not cooking.', c: 'var(--yellow)', top: 'pepperoni' },
+  { t: 'Weddings', d: 'Evening food that gets everyone back on the dance floor.', c: 'var(--white)', top: 'basil' },
+  { t: 'Work dos', d: 'Team lunches, launches and summer socials. Pizza fixes everything.', c: 'var(--green)', top: 'mushroom' },
+  { t: 'Markets & festivals', d: 'Organisers: we bring a tidy pitch, a quick queue and very happy customers.', c: 'var(--orange)', top: 'chilli' },
+];
+const steps = [
+  { n: 1, t: 'Tell us the plan', d: 'Fill in the form below. It takes under a minute, promise.' },
+  { n: 2, t: "We'll get back to you", d: `Within ${site.replyTime} with a quote and menu ideas.` },
+  { n: 3, t: 'We bring the fire', d: 'We roll up, light up and feed everyone. You just enjoy it.' },
+];
+const occasions = ['Private party', 'Wedding', 'Corporate', 'Market or festival', 'Something else'];
+const guests = ['Under 30', '30–60', '60–100', '100–200', '200+'];
+const faqs = [
+  { q: 'What do you need from us?', a: "A bit of space for the oven and some notice. Tell us about your venue in the form and we'll sort the rest." },
+  { q: 'What about dietary needs?', a: "Our Margherita is vegetarian, and full allergen info is on the menu page. Ask us about anything else before the day." },
+  { q: 'Why so few dates?', a: "We only do a few events a year, so we can give each one our all. That also means dates go quickly, so ask early." },
+];
+---
+<Base title="Events & bookings" description="Book the KES Crust Co. wood-fired pizza oven for private parties, weddings, corporate events, markets and festivals.">
+  <section class="block block--pink page-head" aria-labelledby="ev-title">
+    <div class="wrap ev-head">
+      <div class="section-head" style="margin:0">
+        <p class="label" style="color:var(--black)">Events &amp; bookings</p>
+        <h1 id="ev-title">Bring the fire to your&nbsp;<Scribble colour="var(--yellow)">do</Scribble></h1>
+        <p class="lede">Parties, weddings, work dos and markets. We only take on a few a year, so get in early.</p>
+        <div><a class="btn" href="#enquire">Fire it up <Icon name="arrow" /></a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--cream" aria-labelledby="types-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">What we do</p>
+        <h2 id="types-title">Any excuse for pizza</h2>
+      </div>
+      <ul class="types" role="list" data-reveal-group>
+        {types.map((x, i) => (
+          <li class="type sticker" data-reveal style={`background:${x.c};--r:${[-1.5, 1, -0.6, 1.4][i]}deg`}>
+            <Icon name={x.top} topping class="type-icon cutout" />
+            <h3>{x.t}</h3>
+            <p>{x.d}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="block block--yellow" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">How it works</p>
+        <h2 id="how-title">Three steps to pizza</h2>
+      </div>
+      <ol class="how" role="list" data-reveal-group>
+        {steps.map((s) => (
+          <li class="how-step" data-reveal><span class="how-n">{s.n}</span><div><h3>{s.t}</h3><p>{s.d}</p></div></li>
+        ))}
+      </ol>
+      <dl class="faqs">
+        {faqs.map((f) => <div class="faq sticker"><dt>{f.q}</dt><dd>{f.a}</dd></div>)}
+      </dl>
+    </div>
+  </section>
+
+  <section class="block block--burgundy" id="enquire" aria-labelledby="enq-title">
+    <div class="wrap enq">
+      <div class="section-head on-dark enq-intro">
+        <p class="label">Enquiry form</p>
+        <h2 id="enq-title">Let's get cooking</h2>
+        <p class="lede">Four quick steps. Every one adds a slice.</p>
+        <div class="slice-progress" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="94" fill="rgba(255,246,232,.12)" stroke="#FFF6E8" stroke-width="4" stroke-dasharray="6 8" />
+            {Array.from({ length: 8 }, (_, i) => {
+              const a0 = (i * 45 - 90) * (Math.PI / 180), a1 = ((i + 1) * 45 - 90) * (Math.PI / 180);
+              const p = (a: number, r: number) => `${(100 + Math.cos(a) * r).toFixed(1)} ${(100 + Math.sin(a) * r).toFixed(1)}`;
+              return (
+                <g class="slice" data-slice={i}>
+                  <path d={`M100 100L${p(a0, 92)}A92 92 0 0 1 ${p(a1, 92)}Z`} fill="#E9B36A" stroke="#111" stroke-width="3" stroke-linejoin="round" />
+                  <path d={`M100 100L${p(a0, 76)}A76 76 0 0 1 ${p(a1, 76)}Z`} fill="#D8392B" />
+                  <circle cx={(100 + Math.cos((a0 + a1) / 2) * 48).toFixed(1)} cy={(100 + Math.sin((a0 + a1) / 2) * 48).toFixed(1)} r="9" fill="#C62F2F" stroke="#111" stroke-width="2" />
+                  <circle cx={(100 + Math.cos((a0 + a1) / 2 + 0.2) * 24).toFixed(1)} cy={(100 + Math.sin((a0 + a1) / 2 + 0.2) * 24).toFixed(1)} r="7" fill="#FFE7A0" />
+                </g>
+              );
+            })}
+          </svg>
+          <p class="sp-label label" data-sp-label>0 of 4 done</p>
+        </div>
+      </div>
+
+      <form class="enquiry sticker" name="enquiry" method="POST" action="#" data-ajax-form data-custom data-enquiry>
+        <noscript><p class="error-msg">This form needs JavaScript. You can also email us instead.</p></noscript>
+        <p hidden><label>Leave this empty <input name="bot-field" /></label></p>
+        <p class="step-count label" data-step-count aria-live="polite">Step 1 of 4</p>
+
+        <fieldset class="step" data-step="1">
+          <legend><h3>What's the occasion?</h3></legend>
+          <div class="choice-grid">
+            {occasions.map((o, i) => (
+              <label class="choice"><input type="radio" name="occasion" value={o} required={i === 0} /><span>{o}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step="2">
+          <legend><h3>When, and how hungry?</h3></legend>
+          <label class="field"><span>Date (or rough date)</span><input class="input" type="date" name="date" required /></label>
+          <fieldset class="field guests">
+            <legend>Roughly how many guests?</legend>
+            <div class="choice-grid choice-grid--small">
+              {guests.map((g, i) => <label class="choice"><input type="radio" name="guests" value={g} required={i === 0} /><span>{g}</span></label>)}
+            </div>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="step" data-step="3">
+          <legend><h3>Where's the party?</h3></legend>
+          <label class="field"><span>Town or postcode</span><input class="input" type="text" name="location" autocomplete="postal-code" required /></label>
+          <label class="field"><span>Anything else? <small>(optional)</small></span><textarea class="input" name="details" rows="3" placeholder="Indoor or outdoor, timings, dietary needs…"></textarea></label>
+        </fieldset>
+
+        <fieldset class="step" data-step="4">
+          <legend><h3>Who's asking?</h3></legend>
+          <label class="field"><span>Your name</span><input class="input" type="text" name="name" autocomplete="name" required /></label>
+          <label class="field"><span>Email</span><input class="input" type="email" name="email" autocomplete="email" required /></label>
+          <label class="field"><span>Phone <small>(optional)</small></span><input class="input" type="tel" name="phone" autocomplete="tel" /></label>
+          <label class="check"><input type="checkbox" name="crust-club" value="yes" /> <span>Add me to the Crust Club too (monthly-ish emails, unsubscribe any time)</span></label>
+          <p class="form-note">We'll only use these details to reply to your enquiry. See our <a href={u('/privacy')}>privacy notice</a>.</p>
+        </fieldset>
+
+        <p class="error-msg" role="alert" data-error hidden></p>
+        <div class="step-nav">
+          <button class="btn btn--white" type="button" data-prev hidden>Back</button>
+          <button class="btn" type="button" data-next>Next slice <Icon name="arrow" /></button>
+          <button class="btn" type="submit" data-submit>Fire it up <Icon name="arrow" /></button>
+        </div>
+
+        <div class="enq-done" data-done hidden tabindex="-1">
+          <h3>Order up! 🍕</h3>
+          <p>Thanks, we've got your enquiry. We'll be in touch within {site.replyTime}.</p>
+          <a class="btn btn--yellow" href={u('/find-us')}>Meanwhile, find the oven</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/events';
+  </script>
+</Base>
+
+<style>
+  .types { display: grid; gap: 20px; padding: 0; }
+  @media (min-width: 720px) { .types { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .types { grid-template-columns: repeat(4, 1fr); } }
+  .type { padding: 22px; display: grid; gap: 8px; align-content: start; }
+  :global(.type-icon) { width: 56px; height: 56px; }
+  .type h3 { color: var(--burgundy); }
+  .how { display: grid; gap: 18px; padding: 0; margin-bottom: 40px; }
+  @media (min-width: 860px) { .how { grid-template-columns: repeat(3, 1fr); } }
+  .how-step { display: flex; gap: 14px; align-items: flex-start; }
+  .how-n { display: grid; place-items: center; width: 54px; height: 54px; flex: none; border-radius: 50%; background: var(--burgundy); color: var(--white); border: var(--line) solid var(--black); font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; box-shadow: 3px 3px 0 var(--black); }
+  .how-step h3 { color: var(--burgundy); }
+  .faqs { display: grid; gap: 14px; }
+  @media (min-width: 860px) { .faqs { grid-template-columns: repeat(3, 1fr); } }
+  .faq { padding: 18px; }
+  .faq dt { font-weight: 800; font-family: var(--font-display); font-size: 1.2rem; color: var(--burgundy); }
+  .faq dd { margin-top: 6px; }
+
+  .enq { display: grid; gap: 32px; align-items: start; }
+  @media (min-width: 940px) { .enq { grid-template-columns: 0.9fr 1.1fr; } .enq-intro { position: sticky; top: 110px; } }
+  .slice-progress { display: grid; justify-items: center; gap: 10px; margin-top: 10px; }
+  .slice-progress svg { width: min(52vw, 230px); overflow: visible; }
+  .slice { transform-box: view-box; transform-origin: 100px 100px; opacity: 0; transform: scale(0.4) rotate(-40deg); transition: opacity 250ms, transform 450ms var(--spring); }
+  .slice.is-on { opacity: 1; transform: none; }
+  .sp-label { color: var(--yellow); }
+  @media (max-width: 939px) {
+    .slice-progress { grid-template-columns: auto 1fr; justify-items: start; align-items: center; }
+    .slice-progress svg { width: 96px; }
+  }
+
+  .enquiry { padding: clamp(20px, 4vw, 34px); background: var(--cream); color: var(--black); display: grid; gap: 16px; }
+  .step { border: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
+  .step legend { padding: 0; margin-bottom: 4px; }
+  .step h3 { color: var(--burgundy); font-size: clamp(1.6rem, 4vw, 2.1rem); }
+  html.js .enquiry .step:not(.is-current) { display: none; }
+  html.js .enquiry .step.is-current { animation: step-in 380ms var(--spring); }
+  @keyframes step-in { from { opacity: 0; transform: translateX(30px) rotate(1deg); } }
+  .step-count { color: var(--burgundy); }
+  html:not(.js) .step-count, html:not(.js) [data-next], html:not(.js) [data-prev] { display: none; }
+  .choice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .choice-grid--small { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+  .choice { position: relative; }
+  .choice input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .choice span {
+    display: flex; align-items: center; justify-content: center; text-align: center; min-height: 56px; padding: 8px 12px;
+    background: var(--white); border: var(--line) solid var(--black); border-radius: 16px; box-shadow: 3px 3px 0 var(--black);
+    font-weight: 700; transition: transform 250ms var(--spring), background-color 150ms;
+  }
+  .choice input:checked + span { background: var(--yellow); transform: rotate(-2deg) scale(1.03); }
+  .choice input:focus-visible + span { outline: 3px solid var(--black); outline-offset: 3px; box-shadow: 0 0 0 6px var(--orange); }
+  .guests { border: 0; padding: 0; margin: 0; }
+  .guests legend { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-size: 0.95rem; }
+  .check input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--burgundy); flex: none; }
+  .step-nav { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+  .step-nav [hidden] { display: none; }
+  .enq-done { display: grid; gap: 12px; justify-items: start; text-align: left; }
+  .enq-done[hidden] { display: none; }
+  .enq-done h3 { font-size: 2.4rem; color: var(--burgundy); }
+  .enquiry.is-done > :not(.enq-done) { display: none; }
+</style>

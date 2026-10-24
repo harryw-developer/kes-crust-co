@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Icon from '../components/Icon.astro';
+import Scribble from '../components/Scribble.astro';
+import { archBricks, BUILD_ORDER } from '../lib/arch';
+import { dateLong, eventSchema, times } from '../lib/dates';
+import { dateCard } from '../lib/render';
+import { getPitches } from '../lib/content';
+
+const list = await getPitches();
+const next = list[0];
+const bricks = archBricks({ cx: 500, cy: 510, rIn: 212, rOut: 290, keyOut: 302, round: 7 });
+---
+<Base title="Find us" description="Where the KES Crust Co. wood-fired oven is popping up next: dates, times, locations and a countdown to the next bake.">
+  <script type="application/json" id="snap-dates" set:html={JSON.stringify(list)} slot="head" />
+  <script type="application/ld+json" id="live-events-ld" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': list.map(eventSchema) })} slot="head" />
+  <section class="block block--burgundy page-head find-head" aria-labelledby="find-title">
+    <div class="wrap find-grid">
+      <div class="section-head on-dark" style="margin:0">
+        <p class="label">Find us</p>
+        <h1 id="find-title">Where's the <Scribble colour="var(--yellow)">oven?</Scribble></h1>
+        <p class="lede">We only fire up a few times a year, so don't miss it. Tap a date to flip it for the map, then pop it in your calendar.</p>
+      </div>
+
+      <div class="oven-timer" data-oven-timer role="group" aria-label="Countdown to the next bake">
+        <svg class="ot-arch" viewBox="196 196 608 324" aria-hidden="true">
+          {bricks.map((b) => <path class="ot-brick" d={b.d} data-o={BUILD_ORDER.indexOf(b.i)} />)}
+        </svg>
+        <div class="ot-face">
+          <p class="label" data-ot-label>{next ? 'Oven timer' : "Oven's cooling"}</p>
+          <p class="ot-count" data-ot-count role="timer" aria-live="off" hidden={!next}>
+            <span><b data-u="d">--</b><small>days</small></span>
+            <span><b data-u="h">--</b><small>hrs</small></span>
+            <span><b data-u="m">--</b><small>mins</small></span>
+            <span><b data-u="s">--</b><small>secs</small></span>
+          </p>
+          <p class="ot-cool" data-ot-cool hidden={!!next}>No date yet</p>
+        </div>
+        <p class="ot-next" data-ot-next>{next ? <>Next: {dateLong(next.date)}, {times(next)}<br /><strong>{next.name}</strong></> : 'New dates are announced to the Crust Club first.'}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--cream" aria-labelledby="dates-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">Upcoming dates</p>
+        <h2 id="dates-title">Pitch&nbsp;list</h2>
+      </div>
+      <ol class="date-grid" role="list" data-reveal-group data-date-grid set:html={list.map(dateCard).join('')} />
+      <div class="live-empty sticker" data-dates-empty hidden={list.length > 0}>
+        <h3>Oven's cooling for now</h3>
+        <p>No dates booked right now. We only do a handful a year, so join the Crust Club and you'll hear first.</p>
+        <a class="btn" href="#club-title">Join the Crust Club</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--yellow" aria-labelledby="host-title">
+    <div class="wrap host">
+      <h2 id="host-title">Run a market? Want us at&nbsp;yours?</h2>
+      <p class="lede">We bring the oven, the queue and the good vibes. Market organisers, get in touch.</p>
+      <a class="btn" href={u('/events#enquire')}>Book the oven <Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/find-us';
+  </script>
+</Base>
+
+<style>
+  .find-grid { display: grid; gap: 36px; align-items: center; }
+  @media (min-width: 900px) { .find-grid { grid-template-columns: 1fr 1fr; } }
+  .oven-timer { position: relative; width: min(100%, 520px); justify-self: center; }
+  .ot-arch { width: 100%; overflow: visible; }
+  .ot-brick { fill: rgba(255, 246, 232, 0.16); stroke: rgba(255, 246, 232, 0.16); stroke-width: 14; stroke-linejoin: round; transition: fill 400ms, stroke 400ms; }
+  .ot-brick.is-lit { fill: var(--orange); stroke: var(--orange); }
+  .is-live .ot-brick { fill: var(--yellow); stroke: var(--yellow); animation: brick-glow 0.9s infinite alternate; }
+  @keyframes brick-glow { to { fill: var(--orange); stroke: var(--orange); } }
+  :global(html[data-calm]) .ot-brick { animation-play-state: paused; }
+  .ot-face { position: absolute; top: 40%; left: 20%; right: 20%; aspect-ratio: 2.1; display: grid; justify-items: center; align-content: end; text-align: center; }
+  .ot-face .label { font-size: 0.64rem; letter-spacing: 0.14em; }
+  .ot-face .label { color: var(--yellow); }
+  .ot-count { display: flex; gap: clamp(6px, 2vw, 14px); font-family: var(--font-display); font-weight: 800; color: var(--cream); margin-top: 4px; }
+  .ot-count span { display: grid; justify-items: center; }
+  .ot-count b { font-size: clamp(1.6rem, 7vw, 3rem); line-height: 1; font-variant-numeric: tabular-nums; }
+  .ot-count small { font-family: var(--font-label); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; }
+  .ot-cool { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.7rem, 7vw, 2.6rem); color: var(--cream); }
+  .ot-count[hidden], .ot-cool[hidden] { display: none; }
+  .ot-next { margin-top: 18px; font-size: 1rem; line-height: 1.35; color: var(--cream); text-align: center; }
+  .date-grid { display: grid; gap: 26px; padding: 0; }
+  @media (min-width: 720px) { .date-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .date-grid { grid-template-columns: repeat(3, 1fr); } }
+  .host { display: grid; gap: 16px; justify-items: start; }
+</style>

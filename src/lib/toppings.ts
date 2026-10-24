@@ -1,0 +1,64 @@
+// Topping drawings, each in a 40×40 box. Used as an SVG sprite on every page
+// and rasterised onto the canvas in Build-a-Pizza, so both always match.
+const O = 'stroke="#111" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+
+export const TOPPINGS: Record<string, { label: string; svg: string }> = {
+  pepperoni: {
+    label: 'Pepperoni',
+    svg: `<circle cx="20" cy="20" r="15" fill="#C62F2F" ${O}/><circle cx="14" cy="15" r="2.4" fill="#8A1C1F"/><circle cx="24" cy="13" r="1.8" fill="#8A1C1F"/><circle cx="25" cy="24" r="2.6" fill="#8A1C1F"/><circle cx="15" cy="26" r="1.7" fill="#8A1C1F"/><path d="M11 21a9 9 0 0 0 5 7" fill="none" stroke="#E86A5A" stroke-width="2" stroke-linecap="round"/>`,
+  },
+  basil: {
+    label: 'Basil',
+    svg: `<path d="M5 33C7 17 19 6 35 5c0 15-11 28-30 28Z" fill="#2BB673" ${O}/><path d="M7 31C15 23 23 15 31 9" fill="none" stroke="#14653F" stroke-width="2" stroke-linecap="round"/><path d="M15 23l-2-7M21 17l-1-6M18 20l8 1M24 14l7 2" fill="none" stroke="#14653F" stroke-width="1.4" stroke-linecap="round"/>`,
+  },
+  mushroom: {
+    label: 'Mushroom',
+    svg: `<path d="M4 21C4 9 36 9 36 21c-3 2-8 2-11 2l1.5 11c-4 2.5-9 2.5-13 0L15 23c-3 0-8 0-11-2Z" fill="#EAD7B4" ${O}/><path d="M9 19c6 1.5 16 1.5 22 0" fill="none" stroke="#A9865A" stroke-width="1.6" stroke-linecap="round"/><path d="M17 26v6M23 26v6" stroke="#C9AE82" stroke-width="1.4" stroke-linecap="round"/>`,
+  },
+  chilli: {
+    label: 'Chilli',
+    svg: `<path d="M7 33c7 1 21-6 26-19 1-3-2-4-3-2-5 9-13 14-22 15-4 1-5 5-1 6Z" fill="#E8322B" ${O}/><path d="M30 12c1-4 3-6 6-7" fill="none" stroke="#2BB673" stroke-width="3.2" stroke-linecap="round"/><path d="M30 12c1-4 3-6 6-7" fill="none" stroke="#111" stroke-width="1" stroke-linecap="round" opacity=".5"/><path d="M12 29c6-1 11-4 15-9" fill="none" stroke="#FF8A7A" stroke-width="1.8" stroke-linecap="round"/>`,
+  },
+  olive: {
+    label: 'Olive',
+    svg: `<ellipse cx="20" cy="20" rx="12" ry="11" fill="#2B2B2B" ${O}/><ellipse cx="20" cy="20" rx="4.6" ry="4" fill="#9C3D5A" stroke="#111" stroke-width="1.6"/><path d="M12 15a8 8 0 0 1 5-4" stroke="#6B6B6B" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  },
+  onion: {
+    label: 'Red onion',
+    svg: `<path d="M6 26a15 15 0 0 1 28 0" fill="none" stroke="#111" stroke-width="8" stroke-linecap="round"/><path d="M6 26a15 15 0 0 1 28 0" fill="none" stroke="#A44B93" stroke-width="4.6" stroke-linecap="round"/><path d="M11 26a9.5 9.5 0 0 1 18 0" fill="none" stroke="#E8C6E0" stroke-width="1.6" stroke-linecap="round"/>`,
+  },
+  pepper: {
+    label: 'Roast pepper',
+    svg: `<path d="M6 28c6-12 20-18 29-17 2 1 1 4-1 4-8 0-19 6-24 15-2 2-5 1-4-2Z" fill="#FFD23F" ${O}/><path d="M11 27c5-7 13-11 20-12" fill="none" stroke="#FFF1B0" stroke-width="1.8" stroke-linecap="round"/>`,
+  },
+  tomato: {
+    label: 'Cherry tomato',
+    svg: `<circle cx="20" cy="20" r="13" fill="#E8322B" ${O}/><circle cx="20" cy="20" r="8.5" fill="#FF7A5C"/><path d="M20 12v16M13 16l14 8M13 24l14-8" stroke="#E8322B" stroke-width="2"/><circle cx="16" cy="18" r="1.3" fill="#FFE7A0"/><circle cx="24" cy="18" r="1.3" fill="#FFE7A0"/><circle cx="20" cy="25" r="1.3" fill="#FFE7A0"/>`,
+  },
+  sausage: {
+    label: 'Fennel sausage',
+    svg: `<path d="M9 16c2-7 13-9 19-5 6 3 7 11 3 16-4 6-14 7-19 2-4-3-5-8-3-13Z" fill="#9A5530" ${O}/><circle cx="16" cy="18" r="2" fill="#6E3A1F"/><circle cx="24" cy="23" r="2.2" fill="#6E3A1F"/><circle cx="22" cy="15" r="1.4" fill="#C98A5E"/>`,
+  },
+  nduja: {
+    label: "'Nduja",
+    svg: `<path d="M7 20c-1-8 8-14 15-12 4-3 12 1 11 7 4 4 0 12-5 12-3 5-12 5-15 1-5 0-8-4-6-8Z" fill="#D9481C" ${O}/><circle cx="15" cy="19" r="2" fill="#9E2A0C"/><circle cx="25" cy="22" r="2.4" fill="#9E2A0C"/><circle cx="21" cy="14" r="1.4" fill="#FF8A4C"/>`,
+  },
+  pineapple: {
+    label: 'Pineapple',
+    svg: `<path d="M5 30L20 7l15 23c-9 3-21 3-30 0Z" fill="#FFD23F" ${O}/><path d="M12 24l4-4M20 26l3-5M27 24l-4-4M17 15l3 3" stroke="#D9A21B" stroke-width="1.6" stroke-linecap="round"/><path d="M6 30c9 3 19 3 28 0" stroke="#C8A13A" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  },
+  hazelnut: {
+    label: 'Hazelnut',
+    svg: `<path d="M20 6c8 0 13 8 13 16s-6 12-13 12S7 30 7 22 12 6 20 6Z" fill="#B9773E" ${O}/><path d="M9 15c6-3 16-3 22 0" fill="none" stroke="#7A4A22" stroke-width="2" stroke-linecap="round"/><path d="M15 24c1 3 3 5 6 5" fill="none" stroke="#E2B27D" stroke-width="1.8" stroke-linecap="round"/>`,
+  },
+};
+
+export const toppingSvg = (kind: string, size = 80) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="${size}" height="${size}">${TOPPINGS[kind]?.svg ?? ''}</svg>`;
+
+export const SAUCES: Record<string, string> = {
+  tomato: '#D8392B',
+  white: '#F6E7C8',
+  pesto: '#4E9A3A',
+  choc: '#5A3020',
+};

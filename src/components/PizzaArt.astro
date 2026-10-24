@@ -1,0 +1,6 @@
+---
+import { pizzaArt } from '../lib/render';
+interface Props { art: Record<string, any>; seed: string; class?: string }
+const { art, seed, class: cls = '' } = Astro.props;
+---
+<Fragment set:html={pizzaArt(art, seed, cls)} />

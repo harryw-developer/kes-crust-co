@@ -1,0 +1,7 @@
+---
+interface Props { name: string; class?: string; topping?: boolean; label?: string }
+const { name, class: cls, topping = false, label } = Astro.props;
+---
+<svg class:list={['icon', cls]} aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label} focusable="false">
+  <use href={`#${topping ? 't' : 'i'}-${name}`} />
+</svg>

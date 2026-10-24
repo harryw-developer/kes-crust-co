@@ -1,0 +1,114 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Icon from '../components/Icon.astro';
+import { archBricks, BUILD_ORDER } from '../lib/arch';
+import { TOPPINGS } from '../lib/toppings';
+
+const sauces = [
+  { key: 'tomato', label: 'Tomato', colour: '#D8392B' },
+  { key: 'white', label: 'Garlic white', colour: '#F6E7C8' },
+  { key: 'pesto', label: 'Pesto', colour: '#4E9A3A' },
+];
+const toppingKeys = ['pepperoni', 'basil', 'mushroom', 'chilli', 'olive', 'onion', 'pepper', 'tomato', 'sausage', 'nduja', 'pineapple'];
+const bricks = archBricks({ cx: 500, cy: 510, rIn: 212, rOut: 290, keyOut: 302, round: 7 });
+---
+<Base title="Build-a-Pizza" description="Fling toppings onto a wobbly dough base, melt the cheese, get a silly name and save your pizza to share.">
+  <section class="block block--green page-head build-head" aria-labelledby="build-title">
+    <div class="wrap">
+      <div class="section-head" style="margin:0">
+        <p class="label" style="color:var(--black)">Just for fun</p>
+        <h1 id="build-title">Build-a-Pizza</h1>
+        <p class="lede">Drag toppings onto the dough (or tap to fling them), melt the cheese, then save your masterpiece. Want a real one? <a href={u('/menu')}>Here's the menu</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--cream builder-block" aria-label="Pizza builder">
+    <div class="wrap builder" data-builder>
+      <div class="stage-col">
+        <h2 class="pizza-name" data-name aria-live="polite">The Naked Frisbee</h2>
+        <div class="stage sticker">
+          <canvas data-canvas width="600" height="600" role="img" aria-label="Your pizza. Use the topping buttons to add toppings."></canvas>
+          <div class="stage-loader brick-loader" data-loader hidden>
+            <svg viewBox="196 196 608 324" aria-hidden="true">{bricks.map((b) => <path class="brick" d={b.d} style={`--o:${BUILD_ORDER.indexOf(b.i)}`} />)}</svg>
+            <p class="label">Firing up the oven…</p>
+          </div>
+        </div>
+        <div class="controls">
+          <button class="btn btn--small btn--yellow" type="button" data-action="name"><Icon name="shuffle" /> New name</button>
+          <button class="btn btn--small btn--white" type="button" data-action="shake"><Icon name="wobble" /> Shake it</button>
+          <button class="btn btn--small btn--white" type="button" data-action="clear"><Icon name="trash" /> Start again</button>
+          <button class="btn btn--small" type="button" data-action="save"><Icon name="download" /> Save image</button>
+          <button class="btn btn--small" type="button" data-action="share" hidden><Icon name="share" /> Share</button>
+        </div>
+        <p class="sr-only" role="status" data-status></p>
+      </div>
+
+      <div class="tray-col">
+        <fieldset class="tray-group">
+          <legend class="label">1 · Sauce</legend>
+          <div class="tray">
+            {sauces.map((s) => (
+              <button class="tray-btn" type="button" data-sauce={s.key} aria-pressed="false">
+                <span class="sauce-dot" style={`background:${s.colour}`}></span>{s.label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset class="tray-group">
+          <legend class="label">2 · Cheese</legend>
+          <div class="tray">
+            <button class="tray-btn" type="button" data-cheese aria-pressed="false"><span class="sauce-dot" style="background:#FFE7A0"></span>Melt the mozzarella</button>
+          </div>
+        </fieldset>
+        <fieldset class="tray-group">
+          <legend class="label">3 · Toppings <span class="hint">(drag or tap)</span></legend>
+          <div class="tray tray--toppings">
+            {toppingKeys.map((k) => (
+              <button class="tray-btn tray-btn--topping" type="button" data-topping={k}>
+                <Icon name={k} topping />{TOPPINGS[k].label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/builder';
+  </script>
+</Base>
+
+<style>
+  .build-head { padding-bottom: clamp(56px, 7vw, 80px); }
+  .build-head a { font-weight: 700; }
+  .builder-block { padding-top: clamp(36px, 5vw, 60px); }
+  .builder { display: grid; gap: 28px; align-items: start; }
+  @media (min-width: 940px) { .builder { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+  .pizza-name { font-size: clamp(1.9rem, 6vw, 3rem); text-align: center; margin-bottom: 14px; min-height: 2em; display: grid; place-items: center; }
+  .pizza-name.is-new { animation: name-pop 450ms var(--spring); }
+  @keyframes name-pop { from { transform: scale(0.6) rotate(-5deg); opacity: 0; } }
+  .stage { position: relative; aspect-ratio: 1; width: min(100%, 580px); margin-inline: auto; overflow: hidden; background: #F3E1C2; --r: -0.6deg; }
+  .stage canvas { width: 100%; height: 100%; touch-action: none; }
+  .stage-loader { position: absolute; inset: 0; display: grid; place-content: center; background: rgba(255, 246, 232, 0.85); color: var(--burgundy); }
+  .stage-loader[hidden] { display: none; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; }
+  .controls [hidden] { display: none; }
+  .tray-group { border: 0; padding: 0; margin: 0 0 20px; min-width: 0; }
+  .tray-group legend { color: var(--burgundy); margin-bottom: 10px; }
+  .hint { text-transform: none; letter-spacing: 0; font-family: var(--font-body); color: var(--black); font-weight: 500; }
+  .tray { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tray-btn {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 14px 6px 8px;
+    background: var(--white); border: var(--line) solid var(--black); border-radius: 999px; box-shadow: 3px 3px 0 var(--black);
+    font-weight: 700; font-size: 0.95rem; touch-action: none; user-select: none; -webkit-user-select: none;
+    transition: transform 250ms var(--spring), box-shadow 150ms, background-color 150ms;
+  }
+  .tray-btn:hover { transform: rotate(-3deg) scale(1.04); }
+  .tray-btn:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--black); }
+  .tray-btn[aria-pressed='true'] { background: var(--yellow); }
+  .tray-btn :global(.icon) { width: 34px; height: 34px; }
+  .sauce-dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--black); flex: none; }
+</style>

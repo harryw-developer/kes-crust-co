@@ -1,0 +1,22 @@
+{
+  "_note": "About page copy. Swap in your own names, story and photos whenever you like.",
+  "intro": "Three friends. One mission: awesome pizza. That's it, that's the whole business plan.",
+  "chapters": [
+    { "label": "Spark", "title": "Three mates, one idea", "body": "It started with three friends who couldn't stop talking about pizza. At some point talking turned into doing." },
+    { "label": "Kindling", "title": "Fire, flour, practice", "body": "Plenty of test bakes, a few burnt bottoms and one very floury kitchen later, we had pizza we were proud of." },
+    { "label": "Flame", "title": "Short menu, on purpose", "body": "A Margherita and a Pepperoni, done properly, with ice-cold cans on the side. No faff, just really good pizza." },
+    { "label": "Roar", "title": "A few times a year", "body": "We only fire up a handful of times a year, so every one feels like an event. Blink and you'll miss it." },
+    { "label": "Inferno", "title": "Next up: your plate", "body": "Check the dates, bring your mates, and come and say hello at the oven." }
+  ],
+  "oven": [
+    { "stat": "3", "label": "Friends" },
+    { "stat": "1", "label": "Mission: awesome pizza" },
+    { "stat": "2", "label": "Pizzas, done properly" },
+    { "stat": "£4", "label": "Gets you a Margherita" }
+  ],
+  "crew": [
+    { "role": "Friend No. 1", "bio": "Add a name and a line about what they do. Dough wrangler? Fire boss? Chief taster?", "topping": "basil" },
+    { "role": "Friend No. 2", "bio": "Add a name and a line about what they do. Every pizza crew needs someone on the oven.", "topping": "chilli" },
+    { "role": "Friend No. 3", "bio": "Add a name and a line about what they do. Front of house, chat and good vibes.", "topping": "pepperoni" }
+  ]
+}

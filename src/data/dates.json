@@ -1,0 +1,4 @@
+{
+  "_note": "Fallback only. Real dates live in Supabase and are edited at /admin. This copy is used if the database can't be reached while building.",
+  "dates": []
+}

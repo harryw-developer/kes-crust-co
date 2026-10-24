@@ -1,0 +1,11 @@
+{
+  "_note": "Fallback only. The real menu lives in Supabase and is edited at /admin.",
+  "kitchenNote": "Everything is made in one small setup with one very hot oven, so we can't promise anything is completely free from any allergen. If you have an allergy, talk to us before you order.",
+  "items": [
+    { "id": "margherita", "category": "pizza", "name": "Margherita", "price": 4, "description": "Tomato, mozzarella and basil on a wood-fired base. The classic, done properly.", "ingredients": ["Tomato sauce", "Mozzarella", "Fresh basil", "Olive oil", "Pizza dough (wheat flour)"], "tags": ["veggie"], "contains": ["gluten", "milk"], "mayContain": [], "available": true, "art": { "sauce": "tomato", "cheese": true, "toppings": [["basil", 5]] } },
+    { "id": "pepperoni", "category": "pizza", "name": "Pepperoni", "price": 5, "description": "Loaded with pepperoni that crisps up in the flames. The crowd favourite.", "ingredients": ["Tomato sauce", "Mozzarella", "Pepperoni", "Pizza dough (wheat flour)"], "tags": [], "contains": ["gluten", "milk"], "mayContain": [], "available": true, "art": { "sauce": "tomato", "cheese": true, "toppings": [["pepperoni", 9]] } },
+    { "id": "diet-coke", "category": "drink", "name": "Diet Coke", "price": 1.2, "description": "Ice-cold can. Contains a source of phenylalanine.", "ingredients": ["330ml can"], "tags": ["veggie", "vegan"], "contains": [], "mayContain": [], "available": true, "art": { "can": "#C9CED6", "band": "#E41E2B" } },
+    { "id": "fanta-orange", "category": "drink", "name": "Fanta Orange", "price": 1.2, "description": "Ice-cold can of fizzy orange.", "ingredients": ["330ml can"], "tags": ["veggie", "vegan"], "contains": [], "mayContain": [], "available": true, "art": { "can": "#FF8A00", "band": "#1E5BC6" } },
+    { "id": "sprite", "category": "drink", "name": "Sprite", "price": 1.2, "description": "Ice-cold can of lemon-lime fizz.", "ingredients": ["330ml can"], "tags": ["veggie", "vegan"], "contains": [], "mayContain": [], "available": true, "art": { "can": "#1E9E4A", "band": "#FFD23F" } }
+  ]
+}

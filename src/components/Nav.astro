@@ -1,0 +1,66 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { u, pagePath } from '../lib/paths';
+
+const path = pagePath(Astro.url.pathname);
+const links = [
+  { href: '/find-us', label: 'Find us', topping: 'pepperoni' },
+  { href: '/menu', label: 'Menu', topping: 'basil' },
+  { href: '/build-a-pizza', label: 'Build-a-Pizza', topping: 'mushroom' },
+  { href: '/events', label: 'Events', topping: 'chilli' },
+  { href: '/about', label: 'About', topping: 'olive' },
+];
+const current = (href: string) => (path === href ? 'page' : undefined);
+---
+<header class="nav-wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="nav__logo" href={u('/')} aria-label="KES Crust Co. home" aria-current={current('/')}>
+      <Logo sizes="56px" alt="" eager />
+    </a>
+    <ul class="nav__links">
+      {links.map((l) => <li><a class="nav__pill" href={u(l.href)} aria-current={current(l.href)}>{l.label}</a></li>)}
+    </ul>
+    <div class="nav__quick" style="display:flex;gap:2px">
+      <a class="nav__pill" href={u('/find-us')} aria-current={current('/find-us')}>Find us</a>
+      <a class="nav__pill" href={u('/menu')} aria-current={current('/menu')}>Menu</a>
+    </div>
+    <span class="nav__spacer"></span>
+    <a class="nav__icon nav__fave" href={u('/menu#faves')} data-fave-target aria-label="Your favourite pizzas">
+      <Icon name="heart-fill" class="fave-heart" />
+      <span class="nav__count" data-fave-count data-empty aria-hidden="true">0</span>
+    </a>
+    <a class="btn btn--small nav__cta" href={u('/events#enquire')}>Book the oven</a>
+    <button class="nav__icon nav__burger" type="button" aria-expanded="false" aria-controls="oven-door" aria-label="Open menu">
+      <span class="burger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+  </nav>
+
+  <div id="oven-door" class="oven-door" hidden>
+    <svg class="door-flames" viewBox="0 0 120 40" aria-hidden="true">
+      {[18, 38, 60, 82, 102].map((x, i) => (
+        <path class="flame" style={`--fd:${0.8 + i * 0.15}s`} d={`M${x - 9} 40c-2-12 4-18 ${7 + (i % 2) * 2}-${24 + (i === 2 ? 10 : 0)}c3 10 11 14 11 24Z`} fill={i % 2 ? '#FFD23F' : '#FF6B1A'} stroke="#111" stroke-width="2" />
+      ))}
+    </svg>
+    <div class="oven-door__glow loop" aria-hidden="true"></div>
+    <ul>
+      <li><a class="door-link" href={u('/')} aria-current={current('/')}>Home <Icon name="slice" /></a></li>
+      {links.map((l) => (
+        <li><a class="door-link" href={u(l.href)} aria-current={current(l.href)}>{l.label} <Icon name={l.topping} topping /></a></li>
+      ))}
+    </ul>
+    <div class="door-actions">
+      <a class="btn btn--yellow btn--small" href={u('/events#enquire')}>Book the oven</a>
+      <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="false">
+        <Icon name="pause" /> <span>Pause animations</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav :global(.icon) { width: 22px; height: 22px; }
+  :global(.fave-heart) { color: var(--pink); }
+  .door-link :global(.icon) { width: 36px; height: 36px; }
+  @media (min-width: 980px) { .nav__quick { display: none !important; } }
+</style>

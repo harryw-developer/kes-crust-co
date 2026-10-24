@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+import Icon from '../components/Icon.astro';
+import Scribble from '../components/Scribble.astro';
+import { archBricks } from '../lib/arch';
+import about from '../data/about.json';
+
+const bricks = archBricks({ cx: 500, cy: 510, rIn: 212, rOut: 290, keyOut: 302, round: 7 });
+const fire = [
+  [440, 60, 70], [500, 90, 80], [560, 60, 70], [400, 40, 50], [600, 40, 50], [470, 120, 60], [530, 120, 60],
+];
+const flame = (x: number, w: number, h: number) =>
+  `M${x - w / 2} 506C${x - w / 2} ${506 - h * 0.5} ${x - w * 0.1} ${506 - h * 0.6} ${x} ${506 - h}C${x + w * 0.15} ${506 - h * 0.6} ${x + w / 2} ${506 - h * 0.5} ${x + w / 2} 506Z`;
+---
+<Base title="About" description="KES Crust Co. is three friends on one mission: awesome pizza.">
+  <section class="block block--cream page-head" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="section-head" style="margin:0">
+        <p class="label">About us</p>
+        <h1 id="about-title">Born in the <Scribble>fire</Scribble></h1>
+        <p class="lede">{about.intro}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--black story" aria-labelledby="story-title" data-story>
+    <div class="wrap story-grid">
+      <div class="oven-wrap">
+        <div class="oven" aria-hidden="true">
+          <svg viewBox="196 160 608 380">
+            <defs>
+              <radialGradient id="ember" cx="50%" cy="100%" r="80%">
+                <stop offset="0" stop-color="#FFD23F" /><stop offset=".5" stop-color="#FF6B1A" stop-opacity=".6" /><stop offset="1" stop-color="#FF6B1A" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <path d="M288 510A212 212 0 0 1 712 510Z" fill="#1d0710" />
+            <ellipse class="o-glow" cx="500" cy="500" rx="200" ry="150" fill="url(#ember)" />
+            <g class="o-fire">
+              {fire.map(([x, w, h], i) => (
+                <path class="o-flame flame" d={flame(x, w, h)} fill={['#FF6B1A', '#FFD23F', '#FF6B1A', '#930037', '#930037', '#FF4F9A', '#FFD23F'][i]} stroke="#111" stroke-width="3" style={`--fd:${0.9 + i * 0.13}s`} />
+              ))}
+            </g>
+            <path d="M330 506h340" stroke="#5a2a10" stroke-width="10" stroke-linecap="round" />
+            <path d="M360 498l60-14M420 500l50-18M560 484l70 16" stroke="#8a5a22" stroke-width="12" stroke-linecap="round" />
+            <g fill="#930037" stroke="#930037" stroke-width="14" stroke-linejoin="round">{bricks.map((b) => <path d={b.d} />)}</g>
+          </svg>
+          <p class="heat label"><span data-heat>120</span>°C</p>
+        </div>
+      </div>
+      <div>
+        <h2 id="story-title" class="sr-only">Our story</h2>
+        <ol class="chapters" role="list">
+          {about.chapters.map((c, i) => (
+            <li class="chapter" data-chapter={i}>
+              <p class="label accent">{String(i + 1).padStart(2, '0')} · {c.label}</p>
+              <h3>{c.title}</h3>
+              <p>{c.body}</p>
+            </li>
+          ))}
+        </ol>
+        <button class="motion-toggle" type="button" data-motion-toggle aria-pressed="false" style="color:var(--cream);margin-top:24px"><Icon name="pause" /> <span>Pause animations</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="block block--yellow" aria-labelledby="oven-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">By the numbers</p>
+        <h2 id="oven-title">Small crew, big flavour</h2>
+      </div>
+      <ul class="stats" role="list" data-reveal-group>
+        {about.oven.map((o, i) => (
+          <li class="stat sticker" data-reveal style={`--r:${[-2, 1.5, -1, 2][i]}deg;background:${['var(--white)', 'var(--orange)', 'var(--cream)', 'var(--pink)'][i]}`}>
+            <strong>{o.stat}</strong><span>{o.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="block block--cream" aria-labelledby="crew-title">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">The people</p>
+        <h2 id="crew-title">Meet the three of us</h2>
+      </div>
+      <ul class="crew" role="list" data-reveal-group>
+        {about.crew.map((p, i) => (
+          <li class="person sticker" data-reveal style={`--r:${[-1.5, 1, -0.5][i]}deg`}>
+            <div class="avatar" style={`background:${['var(--yellow)', 'var(--green)', 'var(--pink)'][i]}`}><Icon name={p.topping} topping class="cutout" /></div>
+            <h3>{p.role}</h3>
+            <p>{p.bio}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="center-cta"><a class="btn" href={u('/find-us')}>Come and say hello <Icon name="arrow" /></a></p>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/about';
+  </script>
+</Base>
+
+<style>
+  .story-grid { display: grid; gap: 32px; }
+  @media (min-width: 900px) { .story-grid { grid-template-columns: 1fr 1fr; gap: 56px; } }
+  .oven-wrap { position: sticky; top: 84px; z-index: 2; align-self: start; background: var(--black); padding-bottom: 8px; }
+  .oven { position: relative; width: min(100%, 520px); margin-inline: auto; }
+  .oven svg { width: 100%; overflow: visible; }
+  .o-fire { transform-box: fill-box; transform-origin: 50% 100%; transform: scale(var(--fire, 0.35)); transition: transform 200ms linear; }
+  .o-glow { opacity: var(--glow, 0.3); transition: opacity 200ms linear; }
+  .heat { position: absolute; right: 4%; top: 4%; background: var(--yellow); color: var(--black); border: var(--line) solid var(--black); border-radius: 999px; padding: 6px 12px; rotate: 6deg; font-size: 0.9rem; }
+  .chapters { display: grid; gap: clamp(40px, 12vh, 140px); padding: 6vh 0 10vh; }
+  .chapter { opacity: 0.6; transition: opacity 400ms, transform 400ms var(--spring); max-width: 46ch; }
+  html:not(.js) .chapter, .chapter.is-active { opacity: 1; }
+  .chapter.is-active { transform: translateX(6px); }
+  .chapter h3 { color: var(--cream); font-size: clamp(1.7rem, 4vw, 2.4rem); margin: 8px 0 10px; }
+  @media (max-width: 899px) { .oven { width: min(78%, 360px); } .chapters { padding-top: 0; } }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 0; }
+  @media (min-width: 860px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  .stat { padding: 20px 16px; display: grid; gap: 4px; text-align: center; }
+  .stat strong { font-family: var(--font-display); font-size: clamp(2.4rem, 7vw, 3.6rem); line-height: 1; color: var(--burgundy); }
+  .stat span { font-weight: 600; font-size: 0.95rem; }
+  .crew { display: grid; gap: 22px; padding: 0; }
+  @media (min-width: 820px) { .crew { grid-template-columns: repeat(3, 1fr); } }
+  .person { padding: 22px; display: grid; gap: 10px; justify-items: start; }
+  .avatar { width: 92px; height: 92px; border-radius: 50%; border: var(--line) solid var(--black); display: grid; place-items: center; box-shadow: 3px 3px 0 var(--black); }
+  .avatar :global(.icon) { width: 56px; height: 56px; }
+  .person h3 { color: var(--burgundy); }
+  .center-cta { margin-top: 36px; display: flex; justify-content: center; }
+</style>
