@@ -31,7 +31,7 @@ PINs are stored scrambled (bcrypt) inside the database and checked there; they'r
 | --- | --- |
 | Logo (original file, only trimmed/resized) | `public/brand/`, regenerate sizes with `node scripts/make-brand-assets.mjs` |
 | Email, phone, Instagram handle | `src/data/site.json` (**placeholders: replace these**) |
-| About page story and crew bios | `src/data/about.json` (**placeholders: add your names**) |
+| About page story | `src/data/about.json` |
 | Backup copy of the menu (used only if the database is unreachable during a build) | `src/data/menu.json` |
 | Colours, fonts, buttons | `src/styles/global.css` |
 | Database connection (public key, safe to publish) | `src/lib/supabase.ts` |
@@ -41,7 +41,7 @@ Supabase project: **KES Crust Co** (London region, free plan), in Harry's Org.
 ## Before you go live
 
 1. **Check every allergen** on the menu against your real recipes and suppliers (Admin → Menu → Edit).
-2. Replace the placeholder email, phone and Instagram in `src/data/site.json`, and the crew bios in `src/data/about.json`.
+2. Replace the placeholder email, phone and Instagram in `src/data/site.json`, and the story in `src/data/about.json` if you want to tweak it.
 3. Hosting: GitHub Pages at https://harryw-developer.github.io/kes-crust-co/ . After code or design changes, run `npm run deploy` to publish. Menu and date edits in `/admin` are live straight away and don't need a push.
 4. Own domain later? Set `url` in `src/data/site.json` to it, update `public/robots.txt`, and add the domain under the repo's Settings → Pages.
 5. Optional: set `plausibleDomain` in `site.json` for cookie-free visitor stats.
