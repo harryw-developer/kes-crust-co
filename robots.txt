@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /kes-crust-co/admin
+Sitemap: https://harryw-developer.github.io/kes-crust-co/sitemap-index.xml
