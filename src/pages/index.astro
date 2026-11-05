@@ -26,6 +26,7 @@ const rain = kinds.map((t, i) => {
   const r = 10 + Math.sqrt((i + 0.5) / kinds.length) * 27;
   return { t, x: 50 + Math.cos(a) * r, y: 50 + Math.sin(a) * r, rot: Math.round(rnd() * 360) };
 });
+const shout = ['Ohhh', 'yeah!', "We're", 'back!'];
 const stickers = [
   { t: 'basil', style: 'top:14%;left:4%;width:58px;--r:-18deg' },
   { t: 'chilli', style: 'top:9%;right:5%;width:54px;--r:22deg' },
@@ -52,6 +53,10 @@ const stickers = [
         </p>
       </div>
       <div class="hero__pitch">
+        <p class="shout" data-shout>
+          <span class="sr-only">Ohhh yeah! We're back!</span>
+          {shout.map((w, i) => <span class={`shout__w shout__w--${i + 1}`} style={`--i:${i}`} aria-hidden="true">{w}</span>)}
+        </p>
         <svg class="doodle-arrow" viewBox="0 0 120 80" aria-hidden="true"><path d="M8 12c30-6 66 6 82 40M74 46l17 9 4-19" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /></svg>
         <NextPitch pitches={pitches} />
       </div>
@@ -160,7 +165,7 @@ const stickers = [
     -webkit-mask: radial-gradient(circle, #000 0 calc(var(--clear) + 160px), transparent calc(var(--clear) + 520px));
     mask: radial-gradient(circle, #000 0 calc(var(--clear) + 160px), transparent calc(var(--clear) + 520px));
   }
-  .hero__mark { position: relative; width: min(62vw, 250px); }
+  .hero__mark { position: relative; width: min(54vw, 220px); }
   .rose-hit { position: absolute; left: 50%; top: 8.8%; width: 17%; aspect-ratio: 1; min-width: 44px; translate: -50% -50%; border-radius: 50%; background: transparent; border: 0; z-index: 2; }
   .hero__logo { position: relative; z-index: 1; margin: 0; line-height: 0; animation: logo-drop 900ms var(--spring) both; }
   .hero__logo :global(img) { width: 100%; height: auto; }
@@ -175,6 +180,75 @@ const stickers = [
   .hero__pitch { position: relative; width: 100%; max-width: 520px; animation: pitch-pop 520ms var(--spring) both; }
   @keyframes pitch-pop { from { transform: scale(0.92) rotate(-2deg); } }
   .doodle-arrow { display: none; }
+
+  /* "Ohhh yeah! We're back!": each word gets its own dramatic entrance, then they keep dancing */
+  .shout {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; margin: 0 0 30px; cursor: pointer;
+    font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 9vw, 3.4rem); line-height: 1; letter-spacing: -0.02em;
+    -webkit-tap-highlight-color: transparent; user-select: none;
+  }
+  .shout__w {
+    position: relative; display: inline-block; padding: 0.12em 0.32em 0.16em;
+    border: var(--line) solid var(--black); border-radius: 0.32em; box-shadow: 4px 4px 0 var(--black);
+    rotate: var(--tilt); transform-origin: 50% 100%;
+    animation: var(--enter) var(--dur, 640ms) var(--spring) both, shout-dance 2.4s ease-in-out infinite;
+    animation-delay: calc(500ms + var(--i) * 380ms), calc(2.6s + var(--i) * 160ms);
+  }
+  .shout__w--1 { --tilt: -6deg; --enter: shout-slam; background: var(--yellow); color: var(--black); }
+  .shout__w--2 { --tilt: 4deg; --enter: shout-spin; --dur: 760ms; background: var(--orange); color: var(--black); }
+  .shout__w--3 { --tilt: -3deg; --enter: shout-boing; background: var(--pink); color: var(--black); }
+  .shout__w--4 { --tilt: 5deg; --enter: shout-boom; --dur: 820ms; background: var(--burgundy); color: var(--cream); font-size: 1.12em; }
+  /* "back!" lands with a burst of comic-book rays */
+  .shout__w--4::before {
+    content: ''; position: absolute; inset: -70%; z-index: -1; border-radius: 50%; pointer-events: none;
+    background: repeating-conic-gradient(var(--yellow) 0deg 9deg, transparent 9deg 24deg);
+    -webkit-mask: radial-gradient(circle, transparent 28%, #000 30% 58%, transparent 62%);
+    mask: radial-gradient(circle, transparent 28%, #000 30% 58%, transparent 62%);
+    opacity: 0; animation: shout-burst 700ms ease-out both; animation-delay: calc(500ms + 3 * 380ms + 380ms);
+  }
+  .shout.is-boom { animation: shout-shake 420ms linear both; animation-delay: calc(500ms + 3 * 380ms + 380ms); }
+
+  @keyframes shout-slam {
+    0% { opacity: 0; transform: translateY(-160%) scale(2.6) rotate(-25deg); }
+    55% { opacity: 1; transform: translateY(8%) scale(1.25, 0.72); }
+    75% { transform: translateY(-6%) scale(0.92, 1.1); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes shout-spin {
+    0% { opacity: 0; transform: translateX(140%) scale(0.2) rotate(540deg); }
+    70% { opacity: 1; transform: translateX(-8%) scale(1.15) rotate(-12deg); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes shout-boing {
+    0% { opacity: 0; transform: translateY(120%) scale(0.4, 1.8); }
+    45% { opacity: 1; transform: translateY(-30%) scale(1.2, 0.8); }
+    65% { transform: translateY(6%) scale(0.9, 1.12); }
+    82% { transform: translateY(-4%) scale(1.04, 0.96); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes shout-boom {
+    0% { opacity: 0; transform: scale(5) rotate(-30deg); filter: blur(6px); }
+    45% { opacity: 1; transform: scale(0.82) rotate(8deg); filter: none; }
+    65% { transform: scale(1.18) rotate(-4deg); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes shout-burst {
+    0% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.4) rotate(40deg); }
+  }
+  @keyframes shout-shake {
+    0%, 100% { translate: 0 0; }
+    15% { translate: -6px 3px; } 30% { translate: 6px -3px; } 45% { translate: -4px -2px; }
+    60% { translate: 4px 2px; } 75% { translate: -2px 1px; }
+  }
+  @keyframes shout-dance {
+    0%, 100% { translate: 0 0; scale: 1; }
+    25% { translate: 0 -5px; scale: 1.04; }
+    50% { translate: 0 0; scale: 1; }
+  }
+  /* Calm mode stops the dancing; reduced motion skips straight to the end */
+  :global(html[data-calm]) .shout__w { animation-play-state: running, paused; }
   .hero-sticker { animation: bob 4s ease-in-out infinite alternate; }
   .hero-sticker:nth-of-type(2n) { animation-duration: 5s; }
   @keyframes bob { to { translate: 0 -10px; rotate: calc(var(--r) + 8deg); } }
@@ -186,7 +260,8 @@ const stickers = [
     .hero__pause { width: 44px; min-height: 44px; justify-content: center; padding: 0; bottom: 50px; }
   }
   @media (max-height: 700px) and (max-width: 600px) {
-    .hero__mark { width: min(52vw, 200px); }
+    .hero__mark { width: min(44vw, 170px); }
+    .shout { font-size: 1.7rem; margin-bottom: 18px; }
   }
   @media (min-width: 980px) {
     .hero { padding-top: calc(var(--nav-h) + 56px); min-height: min(100vh, 900px); display: grid; align-items: center; }
@@ -194,7 +269,8 @@ const stickers = [
     .hero__mark { width: min(100%, 460px); }
     .hero__brand::before { --clear: 270px; }
     .hero__tag { display: block; }
-    .doodle-arrow { display: block; position: absolute; left: -96px; top: -40px; width: 110px; rotate: 10deg; }
+    .doodle-arrow { display: block; position: absolute; left: -96px; top: 90px; width: 110px; rotate: 10deg; }
+    .shout { justify-content: flex-start; margin-bottom: 30px; }
   }
 
   /* Spinning pizza */

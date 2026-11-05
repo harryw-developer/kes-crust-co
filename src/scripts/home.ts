@@ -6,6 +6,19 @@ import { liveMenu, livePitches, same, snapshot, updateEventSchema } from './live
 import type { MenuItem } from '../lib/supabase';
 import type { Pitch } from '../lib/dates';
 
+/* ---------- "Ohhh yeah! We're back!": shake on landing, tap to replay ---------- */
+const shout = document.querySelector<HTMLElement>('[data-shout]');
+if (shout && motionOK()) {
+  shout.classList.add('is-boom');
+  shout.addEventListener('click', () => {
+    shout.classList.remove('is-boom');
+    shout.querySelectorAll<HTMLElement>('.shout__w').forEach((w) => { w.style.animation = 'none'; });
+    void shout.offsetWidth;
+    shout.querySelectorAll<HTMLElement>('.shout__w').forEach((w) => { w.style.animation = ''; });
+    shout.classList.add('is-boom');
+  });
+}
+
 /* ---------- Live menu + dates ---------- */
 liveMenu().then((menu) => {
   const el = document.querySelector<HTMLElement>('[data-live-pizzas]');
